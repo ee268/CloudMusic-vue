@@ -100,7 +100,7 @@
 import { ref, onMounted } from 'vue'
 
 const props = defineProps({
-    isShow:{
+    isShow: {
         typeof: String,
         default: "true"
     }
@@ -207,12 +207,9 @@ const getWeek = () => {
         gap: 30px;
         row-gap: 40px;
 
-        @media (max-width: 1200px) {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
         .music-cover {
-            height: 170px;
+            aspect-ratio: 1 / 1;
+            width: 100%;
             background: green;
             background: url('/public/img/Cover.jpg');
             background-size: cover;
@@ -220,6 +217,10 @@ const getWeek = () => {
             transform: scale(1);
 
             &.music-cover-person {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
                 background: linear-gradient(to bottom,
                         #C20C0C,
                         #dd6f6f,
@@ -227,14 +228,12 @@ const getWeek = () => {
                 color: white;
 
                 .week {
-                    font-size: 25px;
+                    font-size: 2vw;
                     text-align: center;
                 }
 
                 .day {
-                    font-size: 100px;
-                    text-align: center;
-                    margin-top: -19px;
+                    font-size: 5vw;
                 }
 
                 &:hover {

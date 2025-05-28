@@ -68,6 +68,18 @@ import carousel from './recommendCarousel.vue'
 .hotRecommend {
     width: 100%;
 
+    :deep(.el-card__header) {
+        width: 95%;
+        padding-top: 7px;
+        padding-bottom: 7px;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-bottom: 2px solid #C20C0C;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
     .el-card {
         border-radius: 0;
         border-top: none;
@@ -164,12 +176,9 @@ import carousel from './recommendCarousel.vue'
         gap: 30px;
         row-gap: 40px;
 
-        @media (max-width: 1200px) {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
         .music-cover {
-            height: 170px;
+            aspect-ratio: 1 / 1;
+            width: 100%;
             background: green;
             background: url('/public/img/Cover.jpg');
             background-size: cover;

@@ -95,14 +95,6 @@ const nextCarousel = () => {
             justify-items: center;
             gap: 20px;
 
-            @media (max-width: 1400px) {
-                gap: 80px;
-            }
-
-            @media (max-width: 1200px) {
-                gap: 50px;
-            }
-
             .albumContainer {
 
                 .album {
@@ -110,8 +102,8 @@ const nextCarousel = () => {
                     flex-direction: column;
 
                     .albumCover {
-                        width: 120px;
-                        height: 120px;
+                        width: 8vw;
+                        height: 8vw;
                         backdrop-filter: blur(0);
                         background: url('/public/cover/1.jpg');
                         background-size: cover;

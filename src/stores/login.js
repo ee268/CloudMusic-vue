@@ -42,24 +42,6 @@ export const useCounterStore = defineStore('counter', () => {
         localStorage.clear()
     }
 
-    const isMenuActive = ref([{ 'find': false }, { 'my': false }, { 'friend': false }])
-
-    const handleSelect = (index) => {
-        if (!isLogin.value && index != 0) {
-            return
-        }
-
-        for (let i = 0; i < isMenuActive.value.length; i++) {
-            if (i == index) {
-                isMenuActive.value[i][Object.keys(isMenuActive.value[i])[0]] = true
-            } else {
-                isMenuActive.value[i][Object.keys(isMenuActive.value[i])[0]] = false
-            }
-        }
-
-        localStorage.setItem('menuActive', index)
-    }
-
     return {
         isLogin,
         logging,
@@ -67,7 +49,5 @@ export const useCounterStore = defineStore('counter', () => {
         password,
         login,
         logout,
-        isMenuActive,
-        handleSelect
     }
 })

@@ -6,7 +6,7 @@
       </el-header>
       <el-main>
         <router-view></router-view>
-        <el-backtop right="250" bottom="100" >
+        <el-backtop :right="250" :bottom="100" >
           <div style="
         height: 100%;
         width: 100%;

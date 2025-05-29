@@ -1,49 +1,53 @@
 <template>
-    <el-menu router mode="horizontal" :ellipsis="false" class="menu" @select="handleMenuSelect"
-        :default-active="isMenuActiveLoad">
+    <el-menu router mode="horizontal" :ellipsis="false" class="menu" :ref="(event) => { mainMenuRef = event }">
 
-        <el-menu-item index="0" :class="{ 'isActive': isMenuActive[0]['find'] }" :route="{ name: 'find' }">
+        <el-menu-item index="0" :route="{ name: 'find' }">
             发现音乐
-            <div v-show="isMenuActive[0]['find']" class="activeIcon"></div>
+            <div v-show="isMenuActive[0]" class="activeIcon"></div>
         </el-menu-item>
 
-        <el-menu-item index="1" :class="{ 'isActive': isMenuActive[1]['my'] }" :route="{ name: 'my' }">
+        <el-menu-item index="1" :route="{ name: 'my' }">
             我的音乐
-            <div v-show="isMenuActive[1]['my']" class="activeIcon"></div>
+            <div v-show="isMenuActive[1]" class="activeIcon"></div>
         </el-menu-item>
 
-        <el-menu-item index="2" :class="{ 'isActive': isMenuActive[2]['friend'] }" :route="{ name: 'friend' }">
+        <el-menu-item index="2" :route="{ name: 'friend' }">
             关注
-            <div v-show="isMenuActive[2]['friend']" class="activeIcon"></div>
+            <div v-show="isMenuActive[2]" class="activeIcon"></div>
         </el-menu-item>
     </el-menu>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useCounterStore } from '../stores/store.js'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import { useMenuStore } from '../stores/menu'
 
-const counter = useCounterStore()
+const router = useRouter()
 
-const {
-    isMenuActive,
-    handleSelect
-} = storeToRefs(counter)
+const mainMenuRef = ref()
 
-const isMenuActiveLoad = ref(localStorage.getItem('menuActive'))
+const Menu = useMenuStore()
+const { menuRef, isMenuActive, setMenuRef } = storeToRefs(Menu)
 
-if (isMenuActiveLoad) {
-    counter.handleSelect(isMenuActiveLoad.value)
-}
-else {
-    isMenuActiveLoad.value = 0
-    counter.handleSelect(0)
-}
+onMounted(() => {
+    Menu.setMenuRef(mainMenuRef.value)
+    router.beforeEach((to, from, next) => {
+        if (!to.meta.subMenu) {
+            console.log(to.meta);
+            Menu.menuRef.updateActiveIndex(to.meta.index)
+            Menu.isMenuActive = [false, false, false]
+            Menu.isMenuActive[Number(to.meta.index)] = true
+        }
+        if (to.fullPath.indexOf('find') != -1) {
+            Menu.menuRef.updateActiveIndex('0')
+            Menu.isMenuActive = [true, false, false]
+        }
 
-const handleMenuSelect = (index) => {
-    counter.handleSelect(index)
-}
+        next()
+    })
+})
 
 </script>
 
@@ -62,18 +66,11 @@ const handleMenuSelect = (index) => {
             background-color: #000000 !important;
             color: #fff !important;
         }
-    }
 
-    .isActive {
-        background-color: #000000 !important;
-        color: #fff !important;
-        border: none;
-    }
-
-    .disableActive {
-        background-color: #242424 !important;
-        color: rgb(190, 189, 189);
-        border: none;
+        &.is-active {
+            background-color: #000000 !important;
+            color: #fff !important;
+        }
     }
 
     .activeIcon {

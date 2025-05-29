@@ -16,7 +16,7 @@ import recommendCarousel from './recommendCarousel.vue'
 import hotRecommend from './hotRecommend.vue'
 import personRecommend from './personRecommend.vue'
 import newAlbum from './newAlbum.vue'
-import { useCounterStore } from '@/stores/store.js'
+import { useCounterStore } from '@/stores/login.js'
 import { storeToRefs } from 'pinia'
 
 const counter = useCounterStore()

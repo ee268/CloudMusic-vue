@@ -96,7 +96,7 @@
 <script setup>
 import pageHeaderMenu from './pageHeaderMenu.vue'
 import { ref, onMounted } from 'vue'
-import { useCounterStore } from '../stores/store.js'
+import { useCounterStore } from '../stores/login.js'
 import { storeToRefs } from 'pinia'
 
 const searchContent = ref('')

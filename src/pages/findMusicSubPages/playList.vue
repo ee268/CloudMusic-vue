@@ -278,11 +278,9 @@
                 --el-pagination-hover-color: #C20C0C;
             }
 
-            .el-pagination.is-background .btn-next.is-active,
-            .el-pagination.is-background .btn-prev.is-active,
-            .el-pagination.is-background .el-pager li.is-active {
+            :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
                 background-color: #C20C0C !important;
-                color: white !important;
+                color: white;
             }
         }
     }

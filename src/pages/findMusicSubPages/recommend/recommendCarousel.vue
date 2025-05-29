@@ -8,7 +8,7 @@
             </el-icon>
         </el-button>
         <div class="carouselContainer">
-            <el-carousel class="elCarousel" @change="changeContainerBg" trigger="click" height="300px" interval="3000"
+            <el-carousel class="elCarousel" @change="changeContainerBg" trigger="click" height="300px" :interval="3000"
                 arrow="never" indicator-position="" :ref="($event) => carousel = $event">
 
                 <el-carousel-item class="carouselImg" v-for="i in 5" :key="i">

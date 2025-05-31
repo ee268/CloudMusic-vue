@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router"
 import { ElMessage } from 'element-plus'
+import { id } from "element-plus/es/locales.mjs";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -43,7 +44,31 @@ const router = createRouter({
                         subMenu: true,
                         index: '2'
                     },
-                    component: () => import('../pages/findMusicSubPages/artist.vue')
+                    redirect: '/find/artist/recommendArtist',
+                    component: () => import('../pages/findMusicSubPages/artist/artist.vue'),
+                    children: [
+                        {
+                            path: 'recommendArtist',
+                            name: 'recommendArtist',
+                            meta: {
+                                id: '1-1',
+                            },
+                            component: () => import('../pages/findMusicSubPages/artist/recommendArtist.vue')
+                        },
+                        {
+                            path: 'signedArtist',
+                            name: 'signedArtist',
+                            meta: {
+                                id: '1-2'
+                            },
+                            component: () => import('../pages/findMusicSubPages/artist/signedArtist.vue')
+                        },
+                        {
+                            path: 'areaArtist/:id',
+                            name: 'areaArtist',
+                            component: () => import('../pages/findMusicSubPages/artist/areaArtist.vue')
+                        }
+                    ]
                 },
                 {
                     path: 'album',
@@ -75,6 +100,12 @@ const router = createRouter({
             component: () => import("../pages/friend.vue"),
         },
     ],
+    scrollBehavior(to, from, savedPosition) {
+        // if (to.name =) {
+        //     return
+        // }
+        return { top: 0, behavior: 'smooth' }
+    }
 });
 
 router.beforeEach((to, from, next) => {

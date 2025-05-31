@@ -103,7 +103,6 @@
     width: 55%;
     display: flex;
     position: relative;
-    background: pink;
     left: 50%;
     transform: translateX(-50%);
 
@@ -269,7 +268,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: yellowgreen;
             margin-top: 20px;
 
             .el-pagination {
@@ -278,9 +276,18 @@
                 --el-pagination-hover-color: #C20C0C;
             }
 
+            :deep(.el-pagination.is-background .el-pager li) {
+                border: 1px solid #CCCCCC;
+
+                &:hover {
+                    border-color: black;
+                }
+            }
+
             :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
                 background-color: #C20C0C !important;
                 color: white;
+                border-color: transparent;
             }
         }
     }

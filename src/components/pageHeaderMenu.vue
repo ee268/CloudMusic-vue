@@ -33,6 +33,7 @@ const { menuRef, isMenuActive, setMenuRef } = storeToRefs(Menu)
 
 onMounted(() => {
     Menu.setMenuRef(mainMenuRef.value)
+    
     router.beforeEach((to, from, next) => {
         if (!to.meta.subMenu) {
             console.log(to.meta);

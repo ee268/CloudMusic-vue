@@ -7,7 +7,7 @@
         <div class="github-info">
             <div class="github-icon"></div>
             <div class="github-link">
-                <a href="https://github.com/ee268/CloudMusic-vue">https://github.com/ee268/CloudMusic-vue</a>
+                <a href="https://github.com/ee268/CloudMusic-vue" target="_blank">https://github.com/ee268/CloudMusic-vue</a>
             </div>
         </div>
     </div>

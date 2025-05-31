@@ -70,10 +70,7 @@ import carousel from './recommendCarousel.vue'
 
     :deep(.el-card__header) {
         width: 95%;
-        padding-top: 7px;
-        padding-bottom: 7px;
-        padding-left: 20px;
-        padding-right: 20px;
+        padding: 20px;
         border-bottom: 2px solid #C20C0C;
         position: relative;
         left: 50%;

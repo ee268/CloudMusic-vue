@@ -6,7 +6,7 @@
       </el-header>
       <el-main>
         <router-view></router-view>
-        <el-backtop :right="250" :bottom="100" >
+        <el-backtop :right="250" :bottom="100">
           <div style="
         height: 100%;
         width: 100%;
@@ -31,7 +31,12 @@
 
 <script setup>
 import pageHeader from '../components/pageHeader.vue'
-import pageFooter from '../components/pageFooter.vue';
+import pageFooter from '../components/pageFooter.vue'
+import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
+
+const router = useRouter()
+
 </script>
 
 <style lang="scss" scoped>
@@ -45,6 +50,7 @@ import pageFooter from '../components/pageFooter.vue';
     height: 100%;
 
     .el-header {
+      width: 100%;
       height: auto;
       padding: 0;
     }

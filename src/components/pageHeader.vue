@@ -8,7 +8,7 @@
             <div class="menu">
                 <pageHeaderMenu />
             </div>
-            
+
             <div class="search">
                 <el-input placeholder="音乐/专辑/歌手" v-model="searchContent">
                     <template #prefix>
@@ -20,7 +20,7 @@
             </div>
 
             <div class="user">
-                <el-dropdown v-show="!isLogin">
+                <el-dropdown v-show="!isLogin" popper-class="userDropDown">
                     <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -34,18 +34,11 @@
                     </template>
                 </el-dropdown>
 
-                <el-dropdown v-show="isLogin">
+                <el-dropdown v-show="isLogin" popper-class="userDropDown">
                     <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item>
-                                <el-icon>
-                                    <HomeFilled />
-                                </el-icon>
-                                我的主页
-                            </el-dropdown-item>
-
-                            <el-dropdown-item>
+                            <el-dropdown-item @click="updateUserInfo">
                                 <el-icon>
                                     <Tools />
                                 </el-icon>
@@ -64,7 +57,7 @@
             </div>
         </div>
 
-        <el-dialog v-model="logging" destroy-on-close align-center>
+        <el-dialog v-model="logging" destroy-on-close align-center @close="handleClose">
             <div class="el-dialog-body">
                 <div class="el-dialog-header">
                     <div class="loginLogo"></div>
@@ -87,7 +80,19 @@
                     </template>
                 </el-input>
 
-                <el-button @click="loginClick">登录</el-button>
+                <el-input v-show="isSign" v-model="confirmPassword" type="password" show-password placeholder="确认密码"
+                    maxlength="18">
+                    <template #prefix>
+                        <el-icon>
+                            <Lock />
+                        </el-icon>
+                    </template>
+                </el-input>
+
+                <div class="sign-login">
+                    <el-button class="sign-btn" @click="signClick">{{ signText }}</el-button>
+                    <el-button class="login-btn" @click="loginClick">{{ loginText }}</el-button>
+                </div>
             </div>
         </el-dialog>
     </div>
@@ -98,10 +103,18 @@ import pageHeaderMenu from './pageHeaderMenu.vue'
 import { ref, onMounted } from 'vue'
 import { useCounterStore } from '../stores/login.js'
 import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
+
+const isSign = ref(false)
+
+const loginText = ref('登录')
+const signText = ref('注册')
 
 const searchContent = ref('')
 
 const counter = useCounterStore()
+
+const router = useRouter()
 
 const {
     isLogin,
@@ -109,14 +122,58 @@ const {
     account,
     password,
     login,
-    logout
+    logout,
+    sign,
+    confirmPassword
 } = storeToRefs(counter)
 
-const loginClick = () => { 
-    counter.login()
+const updateUserInfo = () => {
+    router.push({ name: 'userConfig', params: { id: counter.acc_id } })
 }
 
-const logoutClick = () => { 
+const handleClose = () => {
+    isSign.value = false
+    loginText.value = '登录'
+    signText.value = '注册'
+}
+
+const signClick = () => {
+    if (!isSign.value) {
+        loginText.value = signText.value
+        signText.value = '返回'
+
+        isSign.value = true
+    }
+    else {
+        loginText.value = '登录'
+        signText.value = '注册'
+
+        isSign.value = false
+    }
+
+    account.value = password.value = confirmPassword.value = ''
+}
+
+const loginClick = () => {
+    console.log(isSign.value);
+
+    if (isSign.value) {
+        if (counter.sign()) {
+            loginText.value = '登录'
+            signText.value = '注册'
+
+            isSign.value = false
+        }
+    }
+    else {
+        if (counter.login()) {
+            router.push({ name: 'find' })
+        }
+    }
+}
+
+const logoutClick = () => {
+    router.push({ name: 'find' })
     counter.logout()
 }
 
@@ -219,21 +276,18 @@ const logoutClick = () => {
 </style>
 
 <style lang="scss">
-.el-popper {
-    background: #2B2B2B !important;
-}
-
-// 隐藏三角
-.el-popper__arrow {
-    &::before {
-        background: #2B2B2B !important;
-        border-color: #2B2B2B !important;
+.userDropDown {
+    &.is-light {
+        background: #2B2B2B;
+        border-color: #2B2B2B;
     }
-}
 
-.el-popper.is-light {
-    background: #2B2B2B;
-    border-color: #2B2B2B;
+    .el-popper__arrow {
+        &::before {
+            background: #2B2B2B !important;
+            border-color: #2B2B2B !important;
+        }
+    }
 }
 </style>
 
@@ -312,19 +366,44 @@ const logoutClick = () => {
             }
         }
 
-        .el-button {
-            margin-top: 50px;
+        .sign-login {
+            display: flex;
+            justify-content: space-between;
             width: 250px;
-            height: 45px;
-            border-radius: 20px;
-            background: #FF3A3A;
-            color: white;
-            font-size: 16px;
-            border: none;
-            transition: transform 0.2s ease;
+            gap: 10px;
 
-            &:active {
-                transform: scale(0.95);
+            .sign-btn {
+                margin: 0;
+                margin-top: 50px;
+                height: 45px;
+                width: 100%;
+                border-radius: 20px;
+                background: #F9E6E6;
+                color: #C20C0C;
+                font-size: 16px;
+                border: 1px solid #C20C0C;
+                transition: transform 0.2s ease;
+
+                &:active {
+                    transform: scale(0.95);
+                }
+            }
+
+            .login-btn {
+                margin: 0;
+                margin-top: 50px;
+                height: 45px;
+                width: 100%;
+                border-radius: 20px;
+                background: #FF3A3A;
+                color: white;
+                font-size: 16px;
+                border: none;
+                transition: transform 0.2s ease;
+
+                &:active {
+                    transform: scale(0.95);
+                }
             }
         }
     }

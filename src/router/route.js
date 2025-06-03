@@ -82,7 +82,7 @@ const router = createRouter({
             ]
         },
         {
-            path: "/my",
+            path: "/my/:id",
             name: "my",
             meta: {
                 mainMenu: true,
@@ -99,6 +99,11 @@ const router = createRouter({
             },
             component: () => import("../pages/friend.vue"),
         },
+        {
+            path: "/userConfig/:id",
+            name: "userConfig",
+            component: () => import("../pages/userConfig.vue")
+        }
     ],
     scrollBehavior(to, from, savedPosition) {
         // if (to.name =) {

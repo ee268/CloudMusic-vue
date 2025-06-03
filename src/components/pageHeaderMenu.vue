@@ -6,7 +6,7 @@
             <div v-show="isMenuActive[0]" class="activeIcon"></div>
         </el-menu-item>
 
-        <el-menu-item index="1" :route="{ name: 'my' }">
+        <el-menu-item index="1" :route="{ name: 'my', params: { id: 'id=' + acc_id } }">
             我的音乐
             <div v-show="isMenuActive[1]" class="activeIcon"></div>
         </el-menu-item>
@@ -14,6 +14,10 @@
         <el-menu-item index="2" :route="{ name: 'friend' }">
             关注
             <div v-show="isMenuActive[2]" class="activeIcon"></div>
+        </el-menu-item>
+
+        <el-menu-item v-show="false" index="3">
+            取消所有活动菜单
         </el-menu-item>
     </el-menu>
 </template>
@@ -23,6 +27,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useMenuStore } from '../stores/menu'
+import { useCounterStore } from '../stores/login'
 
 const router = useRouter()
 
@@ -31,12 +36,14 @@ const mainMenuRef = ref()
 const Menu = useMenuStore()
 const { menuRef, isMenuActive, setMenuRef } = storeToRefs(Menu)
 
+const Login =  useCounterStore()
+const { acc_id } = storeToRefs(Login)
+
 onMounted(() => {
     Menu.setMenuRef(mainMenuRef.value)
     
     router.beforeEach((to, from, next) => {
         if (!to.meta.subMenu) {
-            console.log(to.meta);
             Menu.menuRef.updateActiveIndex(to.meta.index)
             Menu.isMenuActive = [false, false, false]
             Menu.isMenuActive[Number(to.meta.index)] = true

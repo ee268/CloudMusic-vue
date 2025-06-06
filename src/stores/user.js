@@ -5,7 +5,7 @@ export const useUserStore = defineStore('userInfo', () => {
         {
             account: '123',
             password: '123',
-            aritcle_cnt: 0,
+            article_cnt: 0,
             follow_cnt: 0,
             follower_cnt: 0,
             name: 'test',

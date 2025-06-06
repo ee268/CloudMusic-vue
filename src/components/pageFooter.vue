@@ -24,6 +24,7 @@
     justify-content: center;
     align-items: center;
     padding: 20px;
+    padding-bottom: 80px;
     row-gap: 10px;
 
     .footer-content {

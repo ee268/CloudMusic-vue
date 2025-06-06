@@ -9,8 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vue/devtools-api": "^7.7.6",
+    "aplayer": "^1.10.1",
     "axios": "^1.9.0",
     "element-plus": "^2.9.10",
+    "hls.js": "^1.6.5",
     "mockjs": "^1.1.0",
     "path": "^0.12.7",
     "pinia": "^3.0.2",

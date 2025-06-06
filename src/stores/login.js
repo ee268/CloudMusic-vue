@@ -65,7 +65,7 @@ export const useCounterStore = defineStore('counter', () => {
                 let newAccount = {
                     account: account.value,
                     password: password.value,
-                    aritcle_cnt: 0,
+                    article_cnt: 0,
                     follow_cnt: 0,
                     follower_cnt: 0,
                     name: '用户' + account.value,
@@ -129,6 +129,7 @@ export const useCounterStore = defineStore('counter', () => {
 
     const logout = () => {
         account.value = password.value = ''
+        localStorage.clear()
         isLogin.value = false
     }
 

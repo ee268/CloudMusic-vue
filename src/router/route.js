@@ -103,6 +103,11 @@ const router = createRouter({
             path: "/userConfig/:id",
             name: "userConfig",
             component: () => import("../pages/userConfig.vue")
+        },
+        {
+            path: "/song:id",
+            name: 'song',
+            component: () => import('../pages/song.vue')
         }
     ],
     scrollBehavior(to, from, savedPosition) {

@@ -1,0 +1,110 @@
+<template>
+    <div class="collectDialog">
+        <el-dialog v-model="props.openCollectDialog" @close="props.CloseEvent" width="500" title="添加到歌单">
+            <div class="collectDialogContent">
+                <div class="collectDialogContent collect-menu" v-for="(list, index) in createPlayList" :key="index">
+                    <div class="cover"
+                        :style="{ background: list.audios.length > 0 ? 'url(' + list.audios[0].audio.cover + ')' : 'url(/public/cover/default-playlist-cover.jpg)', backgroundSize: 'cover' }">
+                    </div>
+                    <div class="info">
+                        <div class="info name">{{ list.name }}</div>
+                        <div class="info cnt-song">{{ list.audios.length }}首</div>
+                    </div>
+                </div>
+            </div>
+        </el-dialog>
+    </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useMusicStore } from '../stores/music';
+import { useUserStore } from '../stores/user';
+import { useRouter } from 'vue-router';
+
+const props = defineProps({
+    openCollectDialog: {
+        type: Boolean,
+        default: false
+    },
+    CloseEvent: {
+        type: Function,
+        default: () => { }
+    }
+})
+
+const musicStore = useMusicStore()
+const userStore = useUserStore()
+const roure = useRouter()
+
+const curUser = userStore.getUserId(localStorage.getItem('acc_id'))
+const createPlayList = ref([])
+for (let i = 0; i < curUser.create_playlist.length; i++) {
+    createPlayList.value.push(musicStore.getPlayListId(curUser.create_playlist[i]))
+}
+
+</script>
+
+<style lang="scss" scoped>
+.collectDialog {
+
+    :deep(.el-dialog__header) {
+        padding-left: 16px;
+    }
+
+    :deep(.el-dialog) {
+        padding-left: 0;
+        padding-right: 0;
+
+        .el-dialog__body {
+            height: 400px;
+            overflow-y: auto;
+        }
+    }
+
+
+    .collectDialogContent {
+        display: flex;
+        flex-direction: column;
+
+        .collect-menu {
+            flex: 1;
+            padding: 16px;
+            border-bottom: 1px solid #E0E0E0;
+            background: none;
+            transition: background 0.3s ease;
+            display: flex;
+            flex-direction: row;
+
+            .cover {
+                width: 60px;
+                height: 60px;
+                border-radius: 5px;
+                background: pink;
+                margin-right: 20px;
+            }
+
+            .info {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+
+                .name {
+                    font-size: 17px;
+                    color: black;
+                }
+
+                .cnt-song {
+                    font-size: 14px;
+                    color: #666666;
+                }
+            }
+
+            &:hover {
+                cursor: pointer;
+                background: #F2F2F2;
+            }
+        }
+    }
+}
+</style>

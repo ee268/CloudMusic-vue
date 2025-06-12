@@ -12,7 +12,7 @@
                 </template>
                 <div class="config">
                     <div class="avator">
-                        <el-image src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
+                        <el-image src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                             fit="cover" />
                         <el-button>更换头像</el-button>
                     </div>
@@ -40,17 +40,17 @@
                         <div>生日：</div>
                         <div>
                             <el-select v-model="birthday[0]" style="width: 100px" placeholder="年">
-                                <el-option label="2025">
+                                <el-option v-for="y in year" :key="y" :value="y" :label="y">
                                 </el-option>
                             </el-select>
 
                             <el-select v-model="birthday[1]" style="width: 100px" placeholder="月">
-                                <el-option label="2025">
+                                <el-option v-for="m in month" :key="m" :value="m" :label="m">
                                 </el-option>
                             </el-select>
 
-                            <el-select v-model="birthday[2]" style="width: 100px" placeholder="日">
-                                <el-option label="2025">
+                            <el-select v-model="birthday[2]" style="width: 100px" placeholder="日" @click="isExistDays">
+                                <el-option v-for="d in day" :key="d" :value="d" :label="d">
                                 </el-option>
                             </el-select>
                         </div>
@@ -61,12 +61,12 @@
 
                         <div>
                             <el-select v-model="area[0]" style="width: 100px" placeholder="省">
-                                <el-option label="2025">
+                                <el-option v-for="(value, key, index) in provincesWithCities" :key="index" :value="key" :label="key">
                                 </el-option>
                             </el-select>
 
-                            <el-select v-model="area[1]" style="width: 100px" placeholder="市">
-                                <el-option label="2025">
+                            <el-select v-model="area[1]" style="width: 100px" placeholder="市" @click="isExistCitys">
+                                <el-option v-for="(value, index) in citys" :key="index" :value="value" :label="value">
                                 </el-option>
                             </el-select>
                         </div>
@@ -133,6 +133,145 @@ const saveConfig = () => {
     })
 }
 
+const year = ref([])
+const curYear = new Date().getFullYear()
+for (let i = curYear; i >= 1920; i--) {
+    year.value.push(i)
+}
+
+const month = ref([])
+for (let i = 1; i < 13; i++) {
+    month.value.push(i)
+}
+
+const day = ref([])
+const isExistDays = () => {
+    day.value = []
+    console.log(day.value, birthday.value[0], birthday.value[1]);
+
+    let curYearMonthDay = getMonthDays(parseInt(birthday.value[0]), parseInt(birthday.value[1]))
+    console.log(curYearMonthDay);
+
+    for (let i = 1; i <= curYearMonthDay; i++) {
+        day.value.push(i)
+    }
+}
+function getMonthDays(year, month) {
+    // 创建一个日期对象，月份加1，日期设为0
+    // 这样会得到上一个月的最后一天
+
+    let days = new Date(year, month, 0).getDate();
+    return days;
+}
+
+const provincesWithCities = {
+    "北京市": [
+        "东城区",
+        "西城区",
+        "朝阳区",
+        "丰台区",
+        "石景山区",
+        "海淀区",
+        "门头沟区",
+        "房山区",
+        "通州区",
+        "顺义区",
+        "昌平区",
+        "大兴区",
+        "怀柔区",
+        "平谷区",
+        "密云区",
+        "延庆区"
+    ],
+    "上海市": [
+        "黄浦区",
+        "徐汇区",
+        "长宁区",
+        "静安区",
+        "普陀区",
+        "虹口区",
+        "杨浦区",
+        "闵行区",
+        "宝山区",
+        "嘉定区",
+        "浦东新区",
+        "金山区",
+        "松江区",
+        "青浦区",
+        "奉贤区",
+        "崇明区"
+    ],
+    "广东省": [
+        "广州市",
+        "深圳市",
+        "珠海市",
+        "汕头市",
+        "佛山市",
+        "韶关市",
+        "湛江市",
+        "肇庆市",
+        "江门市",
+        "茂名市",
+        "惠州市",
+        "梅州市",
+        "汕尾市",
+        "河源市",
+        "阳江市",
+        "清远市",
+        "东莞市",
+        "中山市",
+        "潮州市",
+        "揭阳市",
+        "云浮市"
+    ],
+    "浙江省": [
+        "杭州市",
+        "宁波市",
+        "温州市",
+        "嘉兴市",
+        "湖州市",
+        "绍兴市",
+        "金华市",
+        "衢州市",
+        "舟山市",
+        "台州市",
+        "丽水市"
+    ],
+    "四川省": [
+        "成都市",
+        "自贡市",
+        "攀枝花市",
+        "泸州市",
+        "德阳市",
+        "绵阳市",
+        "广元市",
+        "遂宁市",
+        "内江市",
+        "乐山市",
+        "南充市",
+        "眉山市",
+        "宜宾市",
+        "广安市",
+        "达州市",
+        "雅安市",
+        "巴中市",
+        "资阳市",
+        "阿坝藏族羌族自治州",
+        "甘孜藏族自治州",
+        "凉山彝族自治州"
+    ]
+}
+
+const citys = ref([])
+
+const isExistCitys = () => {
+    for (let key in provincesWithCities) {
+        if (key == area.value[0]) {
+            citys.value = provincesWithCities[key]
+            return            
+        }
+    }
+}
 </script>
 
 <style lang="scss" scoped>

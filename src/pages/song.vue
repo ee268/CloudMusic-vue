@@ -1,68 +1,81 @@
 <template>
-    <div class="song">
-        <el-card>
-            <template #header>
-                <div>
-                    单曲
-                </div>
-                {{ musicInfo.name }}
-            </template>
+    <div>
+        <pageHeaderSubMenu paddingBottom="7px" height="5px">
+        </pageHeaderSubMenu>
 
-            <div class="song-cover">
-                <div class="cover" :style="cover">
-                    <div v-show="!cover.background" class="cover default-cover">
+        <div class="song">
+            <el-card>
+                <template #header>
+                    <div>
+                        单曲
                     </div>
-                </div>
-            </div>
+                    {{ musicInfo.name }}
+                </template>
 
-            <div class="song-info">
-                <div class="singer">
-                    歌手：
-                    <div class="singer singer-name">
-                        {{ musicInfo.artist }}
-                    </div>
-                </div>
-                <div class="album">
-                    所属专辑：
-                    <div class="album album-name">
-                        {{ '无' }}
+                <div class="song-cover">
+                    <div class="cover" :style="cover">
+                        <div v-show="!cover.background" class="cover default-cover">
+                        </div>
                     </div>
                 </div>
 
-                <div class="music-btn">
-                    <div class="play-btn">
-                        <el-button @click="playMusic" type="primary">
-                            <el-icon size="20">
-                                <VideoPlay />
-                            </el-icon>
-                            播放
-                        </el-button>
-                        <el-button @click="addToAudioList" type="primary">
-                            <el-icon size="20">
-                                <Plus />
-                            </el-icon>
-                        </el-button>
+                <div class="song-info">
+                    <div class="singer">
+                        歌手：
+                        <div class="singer singer-name">
+                            {{ musicInfo.artist }}
+                        </div>
+                    </div>
+                    <div class="album">
+                        所属专辑：
+                        <div class="album album-name">
+                            {{ '无' }}
+                        </div>
                     </div>
 
-                    <div class="collect-btn">
-                        <el-button>
-                            <el-icon size="20">
-                                <FolderAdd />
-                            </el-icon>
-                            收藏
-                        </el-button>
+                    <div class="music-btn">
+                        <div class="play-btn">
+                            <el-button @click="playMusic" type="primary">
+                                <el-icon size="20">
+                                    <VideoPlay />
+                                </el-icon>
+                                播放
+                            </el-button>
+                            <el-button @click="addToAudioList" type="primary">
+                                <el-icon size="20">
+                                    <Plus />
+                                </el-icon>
+                            </el-button>
+                        </div>
+
+                        <div class="collect-btn">
+                            <el-button @click="openCollectMusicBtn">
+                                <el-icon size="20">
+                                    <FolderAdd />
+                                </el-icon>
+                                收藏
+                            </el-button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </el-card>
+            </el-card>
+        </div>
+
+        <collectDialog :openCollectDialog="isOpenCollectDialog" :CloseEvent="closeCollectDialog"></collectDialog>
     </div>
 </template>
 
 <script setup>
+import pageHeaderSubMenu from '../components/pageHeaderSubMenu.vue'
 import { useRouter } from 'vue-router'
 import { useMusicStore } from '../stores/music'
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useMenuStore } from '../stores/menu'
+import collectDialog from './collectDialog.vue'
+
+const menuStore = useMenuStore()
+menuStore.menuRef.updateActiveIndex("3")
 
 const router = useRouter()
 
@@ -148,7 +161,7 @@ const playMusic = () => {
     }
 }
 
-router.beforeEach(async(to, from, next) => {
+router.beforeEach((to, from, next) => {
     if (to.fullPath.indexOf('song') != -1) {
         musicInfo.value = musicStore.getAudioInfo(to.params.id.substring(1))
         musicInfo.value = musicInfo.value.audio
@@ -159,6 +172,8 @@ router.beforeEach(async(to, from, next) => {
         }
         else {
             cover.value = { background: 'url(' + musicInfo.value.cover + ')', backgroundSize: 'cover' }
+            console.log(123);
+
         }
     }
     next()
@@ -178,6 +193,16 @@ onMounted(() => {
         }
     }
 })
+
+const isOpenCollectDialog = ref(false)
+
+const openCollectMusicBtn = () => {
+    isOpenCollectDialog.value = true
+}
+
+const closeCollectDialog = () => {
+    isOpenCollectDialog.value = false
+}
 
 </script>
 

@@ -37,8 +37,8 @@
             </div>
             <div class="music-text-progress">
                 <div class="music-text">
-                    <div>{{ audioList[curPlayIndex].name }}</div>
-                    <div>{{ audioList[curPlayIndex].artist }}</div>
+                    <div>{{ curPlayList[curPlayIndex].name }}</div>
+                    <div>{{ curPlayList[curPlayIndex].artist }}</div>
                 </div>
                 <div class="music-progress">
                     <div class="progress">
@@ -82,7 +82,7 @@
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item @click="playListClick(index)" :class="{ 'playListOnPlay': true }"
-                                v-for="(song, index) in audioList" :key="index">
+                                v-for="(song, index) in curPlayList" :key="index">
                                 <el-icon v-show="curPlayIndex == index" size="20" color="#C20C0C">
                                     <CaretRight />
                                 </el-icon>
@@ -123,7 +123,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const musicStore = useMusicStore()
-const { audioList, isPlaying } = storeToRefs(musicStore)
+const { audioList, curPlayList, isPlaying } = storeToRefs(musicStore)
 
 const toSongPage = () => {
     router.push({
@@ -140,8 +140,8 @@ const playListClick = (index) => {
 
 const audioPlayTime = ref([])
 
-for (let i = 0; i < musicStore.audioList.length; i++) {
-    let audio = new Audio(musicStore.audioList[i].url);
+for (let i = 0; i < musicStore.curPlayList.length; i++) {
+    let audio = new Audio(musicStore.curPlayList[i].url);
     audio.addEventListener('loadedmetadata', function () {
         audioPlayTime.value.push(Math.floor(audio.duration / 60).toString().padStart(2, '0') + ':' + Math.floor(audio.duration % 60).toString().padStart(2, '0'))
     })
@@ -149,9 +149,9 @@ for (let i = 0; i < musicStore.audioList.length; i++) {
 
 const isExistCover = ref([])
 
-for (let i = 0; i < musicStore.audioList.length; i++) {
-    if (musicStore.audioList[i].cover) {
-        isExistCover.value.push({ background: 'url(' + musicStore.audioList[i].cover + ')', backgroundSize: 'cover' })
+for (let i = 0; i < musicStore.curPlayList.length; i++) {
+    if (musicStore.curPlayList[i].cover) {
+        isExistCover.value.push({ background: 'url(' + musicStore.curPlayList[i].cover + ')', backgroundSize: 'cover' })
     } else {
         isExistCover.value.push({})
     }
@@ -168,7 +168,7 @@ onMounted(() => {
     musicStore.audio = new APlayer({
         container: document.querySelector('.aplayer'),
         mini: true,
-        audio: musicStore.audioList
+        audio: musicStore.curPlayList
     })
 
     musicStore.audio.on('loadeddata', function () {

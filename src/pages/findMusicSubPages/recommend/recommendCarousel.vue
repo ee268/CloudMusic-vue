@@ -12,7 +12,7 @@
                 arrow="never" indicator-position="" :ref="($event) => carousel = $event">
 
                 <el-carousel-item class="carouselImg" v-for="i in 5" :key="i">
-                    <el-image :src="'/public/img/img' + (i + 1) + '.jpg'" fit="cover" lazy/>
+                    <el-image :src="'/public/cover/' + (i + 1) + '.jpg'" fit="cover"/>
                 </el-carousel-item>
             </el-carousel>
         </div>
@@ -32,11 +32,11 @@ const carousel = ref(null)
 const container = ref(null)
 
 onMounted(() => {
-    container.value.style.backgroundImage = `url(/public/img/img${carousel.value.activeIndex + 2}.jpg)`
+    container.value.style.backgroundImage = `url(/public/cover/${carousel.value.activeIndex + 2}.jpg)`
 })
 
 const changeContainerBg = (cur, pre) => {
-    container.value.style.backgroundImage = `url(/public/img/img${carousel.value.activeIndex + 2}.jpg)`
+    container.value.style.backgroundImage = `url(/public/cover/${carousel.value.activeIndex + 2}.jpg)`
 }
 
 const prevCarousel = () => {
@@ -61,6 +61,7 @@ const nextCarousel = () => {
 
     .bgBlur {
         position: absolute;
+        backdrop-filter: blur(40px);
         top: 0;
         left: 0;
         width: 100%;

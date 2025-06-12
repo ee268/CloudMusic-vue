@@ -14,11 +14,14 @@ export const useUserStore = defineStore('userInfo', () => {
             area: ['', ''],
             age: '',
             gender: '',
-            create_playlist: [],
+            create_playlist: ['1234567'],
             collect_playlist: [],
             acc_id: '0000000000'
         }
-    ]
+    ]    
+
+    console.log(userInfo);
+    
 
     if (localStorage.getItem('userInfo')) {
         let JsonUserInfo = JSON.parse(localStorage.getItem('userInfo'))
@@ -50,7 +53,26 @@ export const useUserStore = defineStore('userInfo', () => {
                 userInfo[i] = user
             }
         }
-    } 
+        localStorage.setItem('userInfo', JSON.stringify(userInfo))
+    }
 
-    return { userInfo, getUser, addUser, getUserId, updateUserInfo }
+    const updateCreatePlayList = (userId, playListId) => {
+        for (let i = 0; i < userInfo.length; i++) {
+            if (userInfo[i].acc_id === userId) {
+                userInfo[i].create_playlist.push(playListId)
+            }
+        }
+        localStorage.setItem('userInfo', JSON.stringify(userInfo))
+    }
+
+    const updateCollectPlayList = (userId, playListId) => { 
+        for (let i = 0; i < userInfo.length; i++) {
+            if (userInfo[i].acc_id === userId) {
+                userInfo[i].collect_playlist.push(playListId)
+            }
+        }
+        localStorage.setItem('userInfo', JSON.stringify(userInfo))
+    }
+
+    return { userInfo, getUser, addUser, getUserId, updateUserInfo, updateCreatePlayList, updateCollectPlayList }
 })

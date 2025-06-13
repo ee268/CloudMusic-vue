@@ -11,8 +11,8 @@
             <div v-show="isMenuActive[1]" class="activeIcon"></div>
         </el-menu-item>
 
-        <el-menu-item index="2" :route="{ name: 'friend' }">
-            关注
+        <el-menu-item index="2" :route="{ name: 'upload' }">
+            歌曲上传
             <div v-show="isMenuActive[2]" class="activeIcon"></div>
         </el-menu-item>
 

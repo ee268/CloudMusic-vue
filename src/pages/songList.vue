@@ -11,11 +11,18 @@
                         <div class="songList-title">
                             <div>歌单</div>
                             <div>{{ songList.name }}</div>
+                            <div>
+                                <el-button @click="deletePlayList">
+                                    <el-icon>
+                                        <Delete />
+                                    </el-icon>
+                                </el-button>
+                            </div>
                         </div>
 
                         <div class="songList-creator-info">
                             <div class="creator-avatar"></div>
-                            <div class="creator-name">{{ '歌单创建者' }}</div>
+                            <div class="creator-name">{{ userStore.getUserId(songList.creator_id).name }}</div>
                             <div class="creator-time">{{ songList.create_time }}创建</div>
                         </div>
 
@@ -73,7 +80,11 @@
                                 </el-button>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="name" label="歌曲标题" width="340" />
+                        <el-table-column prop="name" label="歌曲标题" width="340">
+                            <template #default="scope">
+                                <div class="song-title" @click="toSingleSongPage(scope.row)">{{ scope.row.name }}</div>
+                            </template>
+                        </el-table-column>
                         <el-table-column prop="playTime" label="时长" width="100">
                             <template #default="scope">
                                 <span v-show="!isHoverRow[scope.row.index]">{{ scope.row.playTime }}</span>
@@ -81,11 +92,18 @@
                                     <el-icon class="add-btn" size="20"
                                         @click="singleSongAddToPlayList(scope.row.index)">
                                         <Plus />
-                                    </el-icon></span>
+                                    </el-icon>
+                                </span>
                                 <span v-show="isHoverRow[scope.row.index]">
                                     <el-icon class="add-btn" size="20" @click="openCollectMusicBtn(scope.row)">
                                         <FolderAdd />
-                                    </el-icon></span>
+                                    </el-icon>
+                                </span>
+                                <span v-show="isHoverRow[scope.row.index]" @click="deleteSong(scope.row.index)">
+                                    <el-icon class="add-btn" size="20">
+                                        <Delete />
+                                    </el-icon>
+                                </span>
                             </template>
                         </el-table-column>
                         <el-table-column prop="artist" label="歌手" widh="100" />
@@ -95,7 +113,8 @@
             </el-card>
         </div>
 
-        <collectDialog :openCollectDialog="isOpenCollectDialog" :CloseEvent="closeCollectDialog"></collectDialog>
+        <collectDialog :openCollectDialog="isOpenCollectDialog" :CloseEvent="closeCollectDialog"
+            :collectAudio="setCollectAudio"></collectDialog>
     </div>
 </template>
 
@@ -120,19 +139,40 @@ const userStore = useUserStore()
 
 const songList = ref(musicStore.getPlayListId(router.currentRoute.value.params.id.substring(1)))
 const songListTag = ref(songList.value.label)
-const songListCover = ref(songList.value.cover == '' ? {} : {
-    background: 'url(' + songList.value.cover + ')',
-    backgroundSize: 'cover'
-})
+const songListCover = ref({})
 
 const data = songList.value.audios
 
-if (songList.value.cover == '' && data.length > 0) {
-    songListCover.value = {
-        background: 'url(' + data[0].audio.cover + ')',
-        backgroundSize: 'cover'
+const initializeSongList = () => {
+    const list = musicStore.getPlayListId(router.currentRoute.value.params.id.substring(1))
+    if (!list) {
+        console.error('歌单不存在')
+        return
+    }
+
+    songList.value = list
+    songListTag.value = list.label || []
+
+    // 设置封面
+    if (list.cover) {
+        songListCover.value = {
+            background: `url(${list.cover})`,
+            backgroundSize: 'cover'
+        }
+    } else if (list.audios?.length > 0 && list.audios[0].audio?.cover) {
+        songListCover.value = {
+            background: `url(${list.audios[0].audio.cover})`,
+            backgroundSize: 'cover'
+        }
+    } else {
+        songListCover.value = {
+            background: 'url(/public/cover/default-playlist-cover.jpg)',
+            backgroundSize: 'cover'
+        }
     }
 }
+
+initializeSongList()
 
 const audioPlayTime = []
 const loadAudioMetadata = (url) => {
@@ -148,24 +188,71 @@ const loadAudioMetadata = (url) => {
 };
 
 const songListData = ref([])
+// 临时跳过音频时长加载，只测试数据转换
+songListData.value = data.map((item, index) => ({
+    id: item.id,
+    name: item.audio?.name || '未知',
+    artist: item.audio?.artist || '未知',
+    cover: item.audio?.cover || '/public/cover/default-playlist-cover.jpg',
+    url: item.audio?.url || '#',
+    playTime: '00:00', // 临时固定值
+    index
+}))
 
-Promise.all(data.map(item => loadAudioMetadata(item.audio.url)))
-    .then(() => {
-        for (let i = 0; i < data.length; i++) {
-            songListData.value.push({
-                id: data[i].id,
-                name: data[i].audio.name,
-                artist: data[i].audio.artist,
-                cover: data[i].audio.cover,
-                url: data[i].audio.url,
-                belong_album: data[i].belong_ablum,
-                playTime: audioPlayTime[i],
-                index: i
-            })
+const loadSongs = async () => {
+    try {
+        console.log('原始歌单数据:', songList.value) // 检查歌单结构
+        console.log('歌曲数据原始数组:', data) // 检查data内容
 
-            isHoverRow.value.push(false)
+        if (!Array.isArray(data) || data.length === 0) {
+            console.error('无效的歌单数据', data)
+            return
         }
-    });
+
+        const validSongs = data.filter(item => {
+            const isValid = item?.audio?.url
+            console.log('检查歌曲项:', item);
+
+            if (!isValid) console.warn('无效的歌曲项:', item) // 标记无效数据
+            return isValid
+        })
+
+        console.log('有效歌曲:', validSongs) // 检查过滤后的数据
+
+        await Promise.all(
+            validSongs.map(item => {
+                console.log('正在加载:', item.audio.url) // 跟踪加载过程
+                return loadAudioMetadata(item.audio.url)
+            })
+        )
+
+        console.log('音频时长数组:', audioPlayTime) // 检查时长数据
+
+        songListData.value = validSongs.map((item, index) => {
+            const song = {
+                id: item.id,
+                name: item.audio.name,
+                artist: item.audio.artist,
+                cover: item.audio.cover || '/public/cover/default-playlist-cover.jpg',
+                url: item.audio.url,
+                belong_album: item.belong_ablum,
+                playTime: audioPlayTime[index] || '00:00',
+                index
+            }
+            console.log('转换后的歌曲:', song) // 检查最终数据结构
+            return song
+        })
+
+        console.log('最终songListData:', songListData.value) // 确认结果
+        isHoverRow.value = new Array(songListData.value.length).fill(false)
+
+    } catch (error) {
+        console.error('加载歌曲失败:', error)
+        ElMessage.error('加载歌曲列表失败')
+    }
+}
+
+loadSongs()
 
 const rowEnterHover = (row, col, cell, event) => {
     isHoverRow.value[row.index] = true
@@ -188,9 +275,9 @@ const singleSongPlayBtn = (index) => {
             ElMessage({
                 showClose: true,
                 message: '开始播放',
-                type: 'primary',
+                type: 'info',
                 plain: true,
-                duration: '2500'
+                duration: 2500
             })
 
             return
@@ -207,9 +294,9 @@ const singleSongPlayBtn = (index) => {
     ElMessage({
         showClose: true,
         message: '开始播放',
-        type: 'primary',
+        type: 'info',
         plain: true,
-        duration: '2500'
+        duration: 2500
     })
 }
 
@@ -226,9 +313,9 @@ const singleSongAddToPlayList = (index) => {
             ElMessage({
                 showClose: true,
                 message: '已添加到播放列表',
-                type: 'primary',
+                type: 'info',
                 plain: true,
-                duration: '2500'
+                duration: 2500
             })
 
             return
@@ -245,27 +332,60 @@ const singleSongAddToPlayList = (index) => {
     ElMessage({
         showClose: true,
         message: '已添加到播放列表',
-        type: 'primary',
+        type: 'info',
         plain: true,
-        duration: '2500'
+        duration: 2500
+    })
+}
+
+const deletePlayList = () => {
+    musicStore.removePlayList(songList.value.id)
+
+    ElMessage({
+        showClose: true,
+        message: '已删除歌单',
+        type: 'info',
+        plain: true,
+        duration: 2500
+    })
+
+    router.push({ name: 'my', params: { id: '=' + localStorage.getItem('acc_id') } })
+}
+
+const deleteSong = (index) => {
+    //     console.log(data[index]);
+    //     console.log(songList.value.id);
+
+    songListData.value.splice(index, 1)
+
+    musicStore.removeFromPlayList(songList.value.id, data[index].id)
+    ElMessage({
+        showClose: true,
+        message: '已移除歌曲',
+        type: 'info',
+        plain: true,
+        duration: 2500
     })
 }
 
 const paly_playList = () => {
+    musicStore.clearCurPlayListActual()
     musicStore.audio.list.clear()
-    musicStore.clearCurPlayList()
 
     for (let i = 0; i < songListData.value.length; i++) {
-        musicStore.audio.list.add({
+        let audioData = {
             name: songListData.value[i].name,
             artist: songListData.value[i].artist,
             cover: songListData.value[i].cover,
             url: songListData.value[i].url
-        })
+        }
+        musicStore.audio.list.add(audioData)
     }
 
     musicStore.audio.list.switch(0)
-    musicStore.audio.play()
+    setTimeout(() => {
+        musicStore.audio.play()
+    }, 500)
     musicStore.isPlaying = true
 }
 
@@ -292,9 +412,9 @@ const addToPlayList = () => {
     ElMessage({
         showClose: true,
         message: '已添加到播放列表',
-        type: 'primary',
+        type: 'info',
         plain: true,
-        duration: '2500'
+        duration: 2500
     })
 }
 
@@ -322,7 +442,7 @@ const collectPlayList = (event) => {
 
 onMounted(() => {
     let user = userStore.getUserId(localStorage.getItem('acc_id'))
-    
+
     for (let i = 0; i < user.collect_playlist.length; i++) {
         if (user.collect_playlist[i] == songList.value.id) {
 
@@ -332,10 +452,20 @@ onMounted(() => {
     }
 })
 
+const toSingleSongPage = (row) => {
+    router.push({
+        name: 'song',
+        params: { id: '=' + row.id }
+    })
+}
+
+const setCollectAudio = ref()
+
 const isOpenCollectDialog = ref(false)
 
 const openCollectMusicBtn = (row) => {
     isOpenCollectDialog.value = true
+    setCollectAudio.value = musicStore.getAudioInfo(row.id)
 }
 
 const closeCollectDialog = () => {
@@ -423,8 +553,14 @@ const closeCollectDialog = () => {
                         border-radius: 5px;
                     }
 
-                    &>div:last-child {
+                    &>div:nth-child(2) {
                         font-size: 22px;
+                    }
+
+                    &>div:last-child {
+                        flex: 1;
+                        display: flex;
+                        justify-content: flex-end;
                     }
                 }
 
@@ -525,6 +661,14 @@ const closeCollectDialog = () => {
                 border: 1px solid #D9D9D9;
                 border-top: 0;
                 box-sizing: border-box;
+
+                .song-title {
+                    cursor: pointer;
+
+                    &:hover {
+                        text-decoration-line: underline;
+                    }
+                }
 
                 .btn {
                     background: #000;

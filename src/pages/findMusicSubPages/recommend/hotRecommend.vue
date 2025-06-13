@@ -19,7 +19,7 @@
                         </el-menu>
                     </div>
                     <div class="more">
-                        <el-button>
+                        <el-button @click="toPlayListClassifyPage">
                             <el-text size="small">
                                 更多
                                 <el-icon color="#C20C0C">
@@ -62,6 +62,18 @@
 
 <script setup>
 import carousel from './recommendCarousel.vue'
+import { useRouter } from 'vue-router'
+import { useMenuStore } from '@/stores/menu'
+
+const router = useRouter()
+
+const menuStore = useMenuStore()
+
+const toPlayListClassifyPage = () => {
+    menuStore.subMenuRef.updateActiveIndex('1')
+    router.push({ name: 'playList' })
+}
+
 </script>
 
 <style lang="scss" scoped>

@@ -32,13 +32,14 @@
         </div>
 
         <div class="music-info">
-            <div @click="toSongPage" class="music-cover" :style="isExistCover[curPlayIndex]">
-                <div v-show="!isExistCover[curPlayIndex].background" class="default-cover"></div>
+            <div @click="toSongPage" class="music-cover"
+                :style="curPlayListActual[curPlayIndex].cover ? { background: 'url(' + curPlayListActual[curPlayIndex].cover + ')', backgroundSize: 'cover' } : {}">
+                <div v-show="!curPlayListActual[curPlayIndex].cover" class="default-cover"></div>
             </div>
             <div class="music-text-progress">
                 <div class="music-text">
-                    <div>{{ curPlayList[curPlayIndex].name }}</div>
-                    <div>{{ curPlayList[curPlayIndex].artist }}</div>
+                    <div>{{ curPlayListActual[curPlayIndex].name }}</div>
+                    <div>{{ curPlayListActual[curPlayIndex].artist }}</div>
                 </div>
                 <div class="music-progress">
                     <div class="progress">
@@ -82,7 +83,7 @@
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item @click="playListClick(index)" :class="{ 'playListOnPlay': true }"
-                                v-for="(song, index) in curPlayList" :key="index">
+                                v-for="(song, index) in curPlayListActual" :key="index">
                                 <el-icon v-show="curPlayIndex == index" size="20" color="#C20C0C">
                                     <CaretRight />
                                 </el-icon>
@@ -100,7 +101,7 @@
                                     </div>
 
                                     <div>
-                                        {{ audioPlayTime[index] }}
+                                        {{ song.playTime }}
                                     </div>
                                 </div>
                             </el-dropdown-item>
@@ -123,7 +124,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const musicStore = useMusicStore()
-const { audioList, curPlayList, isPlaying } = storeToRefs(musicStore)
+const { audio, audioList, curPlayListActual, isPlaying } = storeToRefs(musicStore)
 
 const toSongPage = () => {
     router.push({
@@ -138,20 +139,24 @@ const playListClick = (index) => {
     musicStore.audio.play()
 }
 
-const audioPlayTime = ref([])
+// const audioPlayTime = ref([])
 
-for (let i = 0; i < musicStore.curPlayList.length; i++) {
-    let audio = new Audio(musicStore.curPlayList[i].url);
-    audio.addEventListener('loadedmetadata', function () {
-        audioPlayTime.value.push(Math.floor(audio.duration / 60).toString().padStart(2, '0') + ':' + Math.floor(audio.duration % 60).toString().padStart(2, '0'))
-    })
-}
+// for (let i = 0; i < musicStore.curPlayListActual.length; i++) {
+//     audioPlayTime.value.push('00:00')
+// }
+
+// for (let i = 0; i < musicStore.curPlayListActual.length; i++) {
+//     let audio = new Audio(musicStore.curPlayListActual[i].url);
+//     audio.addEventListener('loadedmetadata', function () {
+//         audioPlayTime.value[i] = (Math.floor(audio.duration / 60).toString().padStart(2, '0') + ':' + Math.floor(audio.duration % 60).toString().padStart(2, '0'))
+//     })
+// }
 
 const isExistCover = ref([])
 
-for (let i = 0; i < musicStore.curPlayList.length; i++) {
-    if (musicStore.curPlayList[i].cover) {
-        isExistCover.value.push({ background: 'url(' + musicStore.curPlayList[i].cover + ')', backgroundSize: 'cover' })
+for (let i = 0; i < musicStore.curPlayListActual.length; i++) {
+    if (musicStore.curPlayListActual[i].cover) {
+        isExistCover.value.push({ background: 'url(' + musicStore.curPlayListActual[i].cover + ')', backgroundSize: 'cover' })
     } else {
         isExistCover.value.push({})
     }

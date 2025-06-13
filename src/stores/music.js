@@ -2,52 +2,80 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import 'aplayer/dist/APlayer.min.css'
 import APlayer from 'aplayer'
-import { id } from 'element-plus/es/locales.mjs'
+import { ElMessage } from 'element-plus'
 
 export const useMusicStore = defineStore('music', () => {
+    const audio = ''
+
     const audioList = ref([
         {
             name: 'Advertime',
             artist: 'Advertime',
             cover: '/public/cover/1.jpg',
-            url: '/public/song/Advertime.mp3',
+            url: 'http://localhost:5000/files/Advertime.mp3',
         },
         {
             name: 'City Sunshine',
             artist: 'City Sunshine',
             cover: '/public/cover/4.jpg',
-            url: '/public/song/City Sunshine.mp3',
+            url: 'http://localhost:5000/files/City_Sunshine.mp3',
         },
         {
             name: 'Inspiration',
             artist: 'Inspiration',
             cover: '/public/cover/5.jpg',
-            url: '/public/song/Inspiration.mp3'
+            url: 'http://localhost:5000/files/Inspiration.mp3'
         },
         {
             name: 'Limit 70',
             artist: 'Limit 70',
-            url: '/public/song/Limit 70.mp3'
+            url: 'http://localhost:5000/files/Limit_70.mp3'
         },
         {
             name: 'NOMELON NOLEMON',
             artist: 'HALO',
             cover: '/public/cover/12.jpg',
-            url: '/public/song/NOMELON NOLEMON - HALO.mp3'
+            url: 'http://localhost:5000/files/NOMELON_NOLEMON_-_HALO.mp3'
         }
     ])
-    
-
 
     const curPlayList = ref(JSON.parse(JSON.stringify(audioList.value)))
+    const curPlayListActual = ref(JSON.parse(JSON.stringify(audioList.value)))
+    for (let i = 0; i < curPlayListActual.value.length; i++) {
+        let audio = new Audio(curPlayListActual.value[i].url);
+        audio.addEventListener('loadedmetadata', function () {
+            curPlayListActual.value[i].playTime = (Math.floor(audio.duration / 60).toString().padStart(2, '0') + ':' + Math.floor(audio.duration % 60).toString().padStart(2, '0'))
+        })
+    }
 
-    function clearCurPlayList() {
-        for (let i = 0; i < curPlayList.value.length; i++) {
-            curPlayList.value.pop()
+    if (localStorage.getItem('audioList')) {
+        let jsonAudioList = JSON.parse(localStorage.getItem('audioList'))
+
+        for (let i = audioList.value.length; i < jsonAudioList.length; i++) {
+            audioList.value.push(jsonAudioList[i])
+        }
+    }
+    else {
+        localStorage.setItem('audioList', JSON.stringify(audioList.value))
+    }
+
+    function clearCurPlayListActual() {
+        for (let i = 0; i < curPlayListActual.value.length; i++) {
+            curPlayListActual.value.pop()
         }
     }
 
+    function addCurPlayListActual(audio) {
+        curPlayListActual.value.push(audio)
+        let i = curPlayListActual.value.length - 1
+        let au = new Audio(curPlayListActual.value[i].url);
+        au.addEventListener('loadedmetadata', function () {
+            curPlayListActual.value[i].playTime = (Math.floor(au.duration / 60).toString().padStart(2, '0') + ':' + Math.floor(au.duration % 60).toString().padStart(2, '0'))
+        })
+    }
+
     const audioInfo = []
+
     if (localStorage.getItem('audioInfo')) {
         let jsonAduioInfo = JSON.parse(localStorage.getItem('audioInfo'))
         for (let i = 0; i < jsonAduioInfo.length; i++) {
@@ -59,25 +87,11 @@ export const useMusicStore = defineStore('music', () => {
             audioInfo.push({
                 id: Math.random().toString().substring(4, 12),
                 audio: audioList.value[i],
-                belong_album: '123456'
             })
         }
 
         localStorage.setItem('audioInfo', JSON.stringify(audioInfo))
     }
-
-    const ablum = [
-        {
-            name: '专辑123',
-            cover: '',
-            id: '123456',
-            author: '0000000000',
-            public_time: '2025-06-06',
-            public_company: '123123',
-            intro: 'testtest',
-            audios: [audioInfo[0], audioInfo[1], audioInfo[2], audioInfo[3]]
-        }
-    ]
 
     const playList = ref([
         {
@@ -94,7 +108,7 @@ export const useMusicStore = defineStore('music', () => {
 
     if (localStorage.getItem('playList')) {
         let jsonPlayList = JSON.parse(localStorage.getItem('playList'))
-        
+
         for (let i = 0; i < playList.value.length; i++) {
             playList.value.pop()
         }
@@ -107,8 +121,48 @@ export const useMusicStore = defineStore('music', () => {
         localStorage.setItem('playList', JSON.stringify(playList.value))
     }
 
+    function addAudio(name, url) {
+        let cover_random = Math.floor(Math.random() * (12 - 1 + 1)) + 1
+
+        for (let i = 0; i < audioList.value.length; i++) {
+            if (audioList.value[i].url === url) {
+                ElMessage({
+                    showClose: true,
+                    message: '已存在相同歌曲',
+                    type: 'warning',
+                    plain: true,
+                    duration: 2000
+                });
+                return false
+            }
+        }
+
+        audioList.value.push({
+            name: name,
+            artist: name,
+            cover: '/public/cover/' + cover_random + '.jpg',
+            url: url,
+        })
+
+        audioInfo.push({
+            id: Math.random().toString().substring(4, 12),
+            audio: audioList.value[audioList.value.length - 1],
+        })
+
+        localStorage.setItem('audioInfo', JSON.stringify(audioInfo))
+        localStorage.setItem('audioList', JSON.stringify(audioList.value))
+
+        return true
+    }
+
+    console.log('全部歌曲', audioInfo);
+
     function getPlayListId(id) {
         return playList.value.find(item => item.id === id)
+    }
+
+    function getSongInPlayList (playListId, audioId) {
+        return playList.value.find(item => item.id === playListId).audios.find(item => item.id === audioId)
     }
 
     function addPlayList(val) {
@@ -117,11 +171,41 @@ export const useMusicStore = defineStore('music', () => {
         localStorage.setItem('playList', JSON.stringify(playList.value))
     }
 
+    function addToPlayList(id, audio) {
+        let playListId = getPlayListId(id)
+
+        playListId.audios.push(audio)
+
+        localStorage.setItem('playList', JSON.stringify(playList.value))
+    }
+
+    function removeFromPlayList(id, audioId) {
+        let playListId = getPlayListId(id)
+
+        playListId.audios = playListId.audios.filter(item => item.id !== audioId)
+
+        localStorage.setItem('playList', JSON.stringify(playList.value))
+    }
+
+    function removePlayList(id) {
+        playList.value = playList.value.filter(item => item.id !== id)
+
+        localStorage.setItem('playList', JSON.stringify(playList.value))
+    }
+
+    function syncPlayListAudioId() {
+        for (let i = 0; i < playList.value.length; i++) {
+            for (let j = 0; j < playList.value[i].audios.length; j++) {
+                playList.value[i].audios[j].id = audioInfo.find(item => item.audio.url === playList.value[i].audios[j].audio.url).id
+            }
+        }
+        localStorage.setItem('playList', JSON.stringify(playList.value))
+    }
+
     function getAudioInfo(id) {
         return audioInfo.find(item => item.id === id)
     }
 
-    const audio = ''
     const isPlaying = ref(false)
 
     const selectLabel = [
@@ -150,15 +234,22 @@ export const useMusicStore = defineStore('music', () => {
     return {
         playList,
         curPlayList,
-        clearCurPlayList,
+        curPlayListActual,
+        clearCurPlayListActual,
+        addCurPlayListActual,
+        addToPlayList,
+        removeFromPlayList,
+        removePlayList,
+        addAudio,
         audioInfo,
-        ablum,
         audio,
         audioList,
         isPlaying,
         getAudioInfo,
         getPlayListId,
+        getSongInPlayList,
         selectLabel,
-        addPlayList
+        addPlayList,
+        syncPlayListAudioId,
     }
 })

@@ -11,8 +11,9 @@
             <el-carousel class="elCarousel" @change="changeContainerBg" trigger="click" height="300px" :interval="3000"
                 arrow="never" indicator-position="" :ref="($event) => carousel = $event">
 
-                <el-carousel-item class="carouselImg" v-for="i in 5" :key="i">
-                    <el-image :src="'/public/cover/' + (i + 1) + '.jpg'" fit="cover"/>
+                <el-carousel-item class="carouselImg" v-for="song in randSong" :key="song"
+                    @click="toSingleSongPage(song)">
+                    <el-image :src="song.audio.cover" fit="cover" />
                 </el-carousel-item>
             </el-carousel>
         </div>
@@ -26,17 +27,32 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useMusicStore } from '@/stores/music'
+import { useRouter } from 'vue-router'
+
+const route = useRouter()
+
+const musicStore = useMusicStore()
 
 const carousel = ref(null)
-
 const container = ref(null)
 
+const randSong = ref([])
+for (let i = 0; i < 5; i++) {
+    let k = Math.floor(Math.random() * musicStore.audioInfo.length)
+    if (!musicStore.audioInfo[k].audio.cover) {
+        i--
+        continue
+    }
+    randSong.value.push(musicStore.audioInfo[k])
+}
+
 onMounted(() => {
-    container.value.style.backgroundImage = `url(/public/cover/${carousel.value.activeIndex + 2}.jpg)`
+    container.value.style.backgroundImage = `url(${randSong.value[carousel.value.activeIndex].audio.cover})`
 })
 
 const changeContainerBg = (cur, pre) => {
-    container.value.style.backgroundImage = `url(/public/cover/${carousel.value.activeIndex + 2}.jpg)`
+    container.value.style.backgroundImage = `url(${randSong.value[carousel.value.activeIndex].audio.cover})`
 }
 
 const prevCarousel = () => {
@@ -47,6 +63,9 @@ const nextCarousel = () => {
     carousel.value.next()
 }
 
+const toSingleSongPage = (song) => {
+    route.push({ name: 'song', params: { id: '=' + song.id } })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -61,7 +80,8 @@ const nextCarousel = () => {
 
     .bgBlur {
         position: absolute;
-        backdrop-filter: blur(40px);
+        background-color: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(50px);
         top: 0;
         left: 0;
         width: 100%;
@@ -96,6 +116,7 @@ const nextCarousel = () => {
 
         .el-carousel__item {
             opacity: 0.3;
+            cursor: pointer;
 
             &.is-animating {
                 transition: opacity 2s ease-in-out !important;

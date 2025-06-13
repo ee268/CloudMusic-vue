@@ -2,7 +2,7 @@
   <div>
     <homePage />
 
-    <div class="hover-animation" :class="{ 'animating': isHovering }" @mouseover="isHovering = !isLock ? true : false"
+    <div class="hover-animation" :class="{ 'animating': isHovering}" @mouseover="isHovering = !isLock ? true : false"
       @mouseout="isHovering = false">
       <div class="play">
         <div class="lock">
@@ -57,6 +57,16 @@ const lockPos = () => {
   }
 }
 
+@keyframes shrinkPlay {
+  0% {
+    bottom: 0;
+  }
+
+  100% {
+    bottom: -50px;
+  }
+}
+
 .hover-animation {
   display: flex;
   flex-direction: column;
@@ -65,6 +75,8 @@ const lockPos = () => {
   width: 100%;
 
   .play {
+    padding-top: 10px;
+    
     .lock {
       display: flex;
       flex-direction: row;
@@ -102,6 +114,10 @@ const lockPos = () => {
 
   &.animating {
     animation: expandPlay .2s linear forwards;
+  }
+
+  &.animated {
+    animation: shrinkPlay .2s linear forwards;
   }
 }
 </style>

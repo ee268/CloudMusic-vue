@@ -55,7 +55,7 @@
                 <div class="card-music">
                     <div v-for="(list, i) in (playList.filter(item => item.creator_id == userInfo.acc_id))" :key="i">
                         <div class="music-cover"
-                            :style="{ background: list.audios.length > 0 ? 'url(' + list.audios[0].audio.cover + ')' : 'url(/public/cover/default-playlist-cover.jpg)', backgroundSize: 'cover' }">
+                            :style="{ background: getPlaylistCover(list), backgroundSize: 'cover' }">
                             <div class="play-info">
                                 <div class="play-button">
                                     <el-button @click="toPlayListPage(list.id)">
@@ -89,7 +89,7 @@
                 <div class="card-music">
                     <div v-for="(list, i) in collectPlayList" :key="i">
                         <div class="music-cover"
-                            :style="{ background: list.audios.length > 0 ? 'url(' + list.audios[0].audio.cover + ')' : 'url(/public/cover/default-playlist-cover.jpg)', backgroundSize: 'cover' }">
+                            :style="{ background: getPlaylistCover(list), backgroundSize: 'cover' }">
                             <div class="play-info">
                                 <div class="play-button">
                                     <el-button @click="toPlayListPage(list.id)">
@@ -386,6 +386,13 @@ const showFollower = () => {
 
 const editUserInfo = () => {
     router.push({ name: 'userConfig' })
+}
+
+const getPlaylistCover = (list) => {
+    if (!list.audios?.length || !list.audios[0]?.audio?.cover) {
+        return 'url(/public/cover/default-playlist-cover.jpg)'
+    }
+    return `url(${list.audios[0].audio.cover})`
 }
 
 </script>

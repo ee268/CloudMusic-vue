@@ -61,7 +61,8 @@
             </el-card>
         </div>
 
-        <collectDialog :openCollectDialog="isOpenCollectDialog" :CloseEvent="closeCollectDialog"></collectDialog>
+        <collectDialog :openCollectDialog="isOpenCollectDialog" :CloseEvent="closeCollectDialog"
+            :collectAudio="setCollectAudio"></collectDialog>
     </div>
 </template>
 
@@ -81,8 +82,40 @@ const router = useRouter()
 
 const musicStore = useMusicStore()
 
-const musicInfo = ref('')
-const cover = ref('')
+const musicInfo = ref(musicStore.getAudioInfo(router.currentRoute.value.params.id.substring(1)).audio)
+const cover = ref({})
+
+router.beforeEach((to, from, next) => {
+    if (to.fullPath.indexOf('song') != -1) {
+        musicInfo.value = musicStore.getAudioInfo(to.params.id.substring(1))
+        musicInfo.value = musicInfo.value.audio
+        cover.value = musicInfo.value.cover
+
+        if (!cover.value) {
+            cover.value = {}
+        }
+        else {
+            cover.value = { background: 'url(' + musicInfo.value.cover + ')', backgroundSize: 'cover' }
+        }
+    }
+    next()
+})
+
+onMounted(() => {
+    if (router.currentRoute.value.fullPath.indexOf('song') != -1) {
+        musicInfo.value = musicStore.getAudioInfo(router.currentRoute.value.params.id.substring(1))
+        musicInfo.value = musicInfo.value.audio
+        cover.value = musicInfo.value.cover
+
+        if (!cover.value) {
+            cover.value = {}
+        }
+        else {
+            cover.value = { background: 'url(' + musicInfo.value.cover + ')', backgroundSize: 'cover' }
+        }
+    }
+})
+
 // const playingAnimation = ref(musicStore.audio.list.index == judgeAudioEqually())
 
 // musicStore.audio.on('play', () => {
@@ -119,82 +152,67 @@ const addToAudioList = () => {
 
     if (equalIndex != -1) {
         musicStore.audio.list.switch(equalIndex)
-        musicStore.audio.pause()
+        setTimeout(() => {
+            musicStore.audio.pause()
+        }, 500)
         musicStore.isPlaying = false
 
         ElMessage({
             showClose: true,
             message: '已添加到播放列表',
-            type: 'primary',
+            type: 'info',
             plain: true,
-            duration: '2500'
+            duration: 2500
         })
 
         return
     }
 
-    musicStore.audio.list.add(musicInfo.value)
+    musicStore.addCurPlayList(musicInfo.value)
+
     ElMessage({
         showClose: true,
         message: '已添加到播放列表',
-        type: 'primary',
+        type: 'info',
         plain: true,
-        duration: '2500'
+        duration: 2500
     })
 }
 
 const playMusic = () => {
     const equalIndex = judgeAudioEqually()
 
+    //歌曲已存在播放列表中 
     if (equalIndex != -1) {
         musicStore.audio.list.switch(equalIndex)
-        musicStore.audio.play()
+        setTimeout(() => {
+            musicStore.audio.play()
+        }, 500)
         musicStore.isPlaying = true
-
-        ElMessage({
-            showClose: true,
-            message: '开始播放',
-            type: 'primary',
-            plain: true,
-            duration: '2500'
-        })
     }
+    else {
+        musicStore.addCurPlayListActual(musicInfo.value)
+        musicStore.audio.list.add(musicInfo.value)
+
+        musicStore.audio.list.switch(musicStore.audio.list.audios.length - 1)
+
+        setTimeout(() => {
+            musicStore.audio.play()
+        }, 500)
+
+        musicStore.isPlaying = true
+    }
+    ElMessage({
+        showClose: true,
+        message: '开始播放',
+        type: 'info',
+        plain: true,
+        duration: 2500
+    })
 }
 
-router.beforeEach((to, from, next) => {
-    if (to.fullPath.indexOf('song') != -1) {
-        musicInfo.value = musicStore.getAudioInfo(to.params.id.substring(1))
-        musicInfo.value = musicInfo.value.audio
-        cover.value = musicInfo.value.cover
-
-        if (!cover.value) {
-            cover.value = {}
-        }
-        else {
-            cover.value = { background: 'url(' + musicInfo.value.cover + ')', backgroundSize: 'cover' }
-            console.log(123);
-
-        }
-    }
-    next()
-})
-
-onMounted(() => {
-    if (router.currentRoute.value.fullPath.indexOf('song') != -1) {
-        musicInfo.value = musicStore.getAudioInfo(router.currentRoute.value.params.id.substring(1))
-        musicInfo.value = musicInfo.value.audio
-        cover.value = musicInfo.value.cover
-
-        if (!cover.value) {
-            cover.value = {}
-        }
-        else {
-            cover.value = { background: 'url(' + musicInfo.value.cover + ')', backgroundSize: 'cover' }
-        }
-    }
-})
-
 const isOpenCollectDialog = ref(false)
+const setCollectAudio = ref(musicStore.getAudioInfo(router.currentRoute.value.params.id.substring(1)))
 
 const openCollectMusicBtn = () => {
     isOpenCollectDialog.value = true

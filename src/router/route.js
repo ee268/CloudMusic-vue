@@ -91,13 +91,13 @@ const router = createRouter({
             component: () => import("../pages/myMusic.vue"),
         },
         {
-            path: "/friend",
-            name: "friend",
+            path: "/upload",
+            name: "upload",
             meta: {
                 mainMenu: true,
                 index: '2',
             },
-            component: () => import("../pages/friend.vue"),
+            component: () => import("../pages/upload.vue"),
         },
         {
             path: "/userConfig/:id",

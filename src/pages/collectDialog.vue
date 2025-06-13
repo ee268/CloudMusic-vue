@@ -2,13 +2,14 @@
     <div class="collectDialog">
         <el-dialog v-model="props.openCollectDialog" @close="props.CloseEvent" width="500" title="添加到歌单">
             <div class="collectDialogContent">
-                <div class="collectDialogContent collect-menu" v-for="(list, index) in createPlayList" :key="index">
-                    <div class="cover"
-                        :style="{ background: list.audios.length > 0 ? 'url(' + list.audios[0].audio.cover + ')' : 'url(/public/cover/default-playlist-cover.jpg)', backgroundSize: 'cover' }">
+                <div class="collectDialogContent collect-menu" v-for="(list, index) in createPlayList" :key="index"
+                    @click="collectAudioToPlayList(props.collectAudio, index)">
+                    <div class="cover" :style="{ background: getPlaylistCover(list), backgroundSize: 'cover' }">
                     </div>
                     <div class="info">
                         <div class="info name">{{ list.name }}</div>
                         <div class="info cnt-song">{{ list.audios.length }}首</div>
+                        <div></div>
                     </div>
                 </div>
             </div>
@@ -21,6 +22,7 @@ import { ref } from 'vue'
 import { useMusicStore } from '../stores/music';
 import { useUserStore } from '../stores/user';
 import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 
 const props = defineProps({
     openCollectDialog: {
@@ -29,6 +31,10 @@ const props = defineProps({
     },
     CloseEvent: {
         type: Function,
+        default: () => { }
+    },
+    collectAudio: {
+        type: Object,
         default: () => { }
     }
 })
@@ -41,6 +47,24 @@ const curUser = userStore.getUserId(localStorage.getItem('acc_id'))
 const createPlayList = ref([])
 for (let i = 0; i < curUser.create_playlist.length; i++) {
     createPlayList.value.push(musicStore.getPlayListId(curUser.create_playlist[i]))
+}
+
+const getPlaylistCover = (list) => {
+    if (!list.audios?.length || !list.audios[0]?.audio?.cover) {
+        return 'url(/public/cover/default-playlist-cover.jpg)'
+    }
+    return `url(${list.audios[0].audio.cover})`
+}
+
+const collectAudioToPlayList = (audioData, index) => {
+    if (musicStore.getSongInPlayList(createPlayList.value[index].id, audioData.id)) {
+        ElMessage.warning('歌曲已存在')
+        return
+    }
+
+    musicStore.addToPlayList(createPlayList.value[index].id, audioData)
+    ElMessage.success('添加成功')
+    // console.log(audioData);
 }
 
 </script>

@@ -46,8 +46,14 @@ const roure = useRouter()
 const curUser = userStore.getUserId(localStorage.getItem('acc_id'))
 const createPlayList = ref([])
 for (let i = 0; i < curUser.create_playlist.length; i++) {
-    createPlayList.value.push(musicStore.getPlayListId(curUser.create_playlist[i]))
+    let list = musicStore.getPlayListId(curUser.create_playlist[i])
+    if (list) {
+        createPlayList.value.push(list)
+    }
 }
+console.log(createPlayList.value);
+
+
 
 const getPlaylistCover = (list) => {
     if (!list.audios?.length || !list.audios[0]?.audio?.cover) {

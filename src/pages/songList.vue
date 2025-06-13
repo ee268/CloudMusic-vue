@@ -28,7 +28,7 @@
 
                         <div class="songList-btn">
                             <div class="play-btn">
-                                <el-button type="primary" @click="paly_playList">
+                                <el-button type="primary" @click="play_playList">
                                     <el-icon size="20">
                                         <VideoPlay />
                                     </el-icon>
@@ -68,7 +68,7 @@
                     <div>{{ songList.audios.length }}首歌</div>
                 </template>
                 <div class="songList-songs">
-                    <el-table :data="songListData" stripe @cell-mouse-enter="rowEnterHover"
+                    <el-table :data="songListData" empty-text="暂无歌曲" stripe @cell-mouse-enter="rowEnterHover"
                         @cell-mouse-leave="rowLeaveHover">
                         <el-table-column type="index" width="30" />
                         <el-table-column width="50">
@@ -201,32 +201,32 @@ songListData.value = data.map((item, index) => ({
 
 const loadSongs = async () => {
     try {
-        console.log('原始歌单数据:', songList.value) // 检查歌单结构
-        console.log('歌曲数据原始数组:', data) // 检查data内容
+        // console.log('原始歌单数据:', songList.value) // 检查歌单结构
+        // console.log('歌曲数据原始数组:', data) // 检查data内容
 
         if (!Array.isArray(data) || data.length === 0) {
-            console.error('无效的歌单数据', data)
+            // console.error('无效的歌单数据', data)
             return
         }
 
         const validSongs = data.filter(item => {
             const isValid = item?.audio?.url
-            console.log('检查歌曲项:', item);
+            // console.log('检查歌曲项:', item);
 
-            if (!isValid) console.warn('无效的歌曲项:', item) // 标记无效数据
+            // if (!isValid) console.warn('无效的歌曲项:', item) // 标记无效数据
             return isValid
         })
 
-        console.log('有效歌曲:', validSongs) // 检查过滤后的数据
+        // console.log('有效歌曲:', validSongs) // 检查过滤后的数据
 
         await Promise.all(
             validSongs.map(item => {
-                console.log('正在加载:', item.audio.url) // 跟踪加载过程
+                // console.log('正在加载:', item.audio.url) // 跟踪加载过程
                 return loadAudioMetadata(item.audio.url)
             })
         )
 
-        console.log('音频时长数组:', audioPlayTime) // 检查时长数据
+        // console.log('音频时长数组:', audioPlayTime) // 检查时长数据
 
         songListData.value = validSongs.map((item, index) => {
             const song = {
@@ -239,11 +239,11 @@ const loadSongs = async () => {
                 playTime: audioPlayTime[index] || '00:00',
                 index
             }
-            console.log('转换后的歌曲:', song) // 检查最终数据结构
+            // console.log('转换后的歌曲:', song) // 检查最终数据结构
             return song
         })
 
-        console.log('最终songListData:', songListData.value) // 确认结果
+        // console.log('最终songListData:', songListData.value) // 确认结果
         isHoverRow.value = new Array(songListData.value.length).fill(false)
 
     } catch (error) {
@@ -368,8 +368,9 @@ const deleteSong = (index) => {
     })
 }
 
-const paly_playList = () => {
+const play_playList = () => {
     musicStore.clearCurPlayListActual()
+    musicStore.clearCurPlayList()
     musicStore.audio.list.clear()
 
     for (let i = 0; i < songListData.value.length; i++) {
@@ -380,6 +381,7 @@ const paly_playList = () => {
             url: songListData.value[i].url
         }
         musicStore.audio.list.add(audioData)
+        musicStore.addCurPlayListActual(audioData)
     }
 
     musicStore.audio.list.switch(0)

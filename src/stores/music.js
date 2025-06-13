@@ -59,10 +59,15 @@ export const useMusicStore = defineStore('music', () => {
         localStorage.setItem('audioList', JSON.stringify(audioList.value))
     }
 
+    function clearCurPlayList() {
+        curPlayList.value = []
+        console.log('cleaCurPlayList', curPlayList.value);
+    }
+
     function clearCurPlayListActual() {
-        for (let i = 0; i < curPlayListActual.value.length; i++) {
-            curPlayListActual.value.pop()
-        }
+        curPlayListActual.value = []
+
+        console.log('clearCurPlayListActual', curPlayListActual.value);
     }
 
     function addCurPlayListActual(audio) {
@@ -161,7 +166,7 @@ export const useMusicStore = defineStore('music', () => {
         return playList.value.find(item => item.id === id)
     }
 
-    function getSongInPlayList (playListId, audioId) {
+    function getSongInPlayList(playListId, audioId) {
         return playList.value.find(item => item.id === playListId).audios.find(item => item.id === audioId)
     }
 
@@ -234,6 +239,7 @@ export const useMusicStore = defineStore('music', () => {
     return {
         playList,
         curPlayList,
+        clearCurPlayList,
         curPlayListActual,
         clearCurPlayListActual,
         addCurPlayListActual,

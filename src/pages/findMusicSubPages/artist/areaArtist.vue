@@ -115,11 +115,10 @@ router.beforeEach((to, from, next) => {
                 border-radius: 5%;
                 transform: scale(1);
                 cursor: pointer;
+                transition: all 0.3s ease;
 
                 &:hover {
                     transform: scale(1.1);
-
-                    transition: all 0.3s ease;
                 }
             }
         }
@@ -131,6 +130,7 @@ router.beforeEach((to, from, next) => {
             align-items: center;
             justify-content: space-between;
             gap: 5px;
+            transition: all 0.3s;
 
             div {
                 text-wrap: nowrap;
@@ -141,7 +141,6 @@ router.beforeEach((to, from, next) => {
 
             &:hover {
                 color: #C20C0C;
-                transition: all 0.3s;
                 cursor: pointer;
             }
         }
@@ -161,6 +160,7 @@ router.beforeEach((to, from, next) => {
                 align-items: center;
                 justify-content: center;
                 gap: 5px;
+                transition: all 0.3s;
 
                 div {
                     text-wrap: nowrap;
@@ -171,7 +171,6 @@ router.beforeEach((to, from, next) => {
 
                 &:hover {
                     color: #C20C0C;
-                    transition: all 0.3s;
                     cursor: pointer;
                 }
             }

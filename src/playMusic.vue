@@ -32,9 +32,8 @@
         </div>
 
         <div class="music-info">
-            <div @click="toSongPage" class="music-cover"
-                :style="curPlayListActual[curPlayIndex].cover ? { background: 'url(' + curPlayListActual[curPlayIndex].cover + ')', backgroundSize: 'cover' } : {}">
-                <div v-show="!curPlayListActual[curPlayIndex].cover" class="default-cover"></div>
+            <div @click="toSongPage" class="music-cover" :style="getCurrentSongCover()">
+                <div v-show="!currentSongCover" class="default-cover"></div>
             </div>
             <div class="music-text-progress">
                 <div class="music-text">
@@ -114,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import 'aplayer/dist/APlayer.min.css'
 import APlayer from 'aplayer'
 import { useMusicStore } from './stores/music'
@@ -127,9 +126,19 @@ const musicStore = useMusicStore()
 const { audio, audioList, curPlayListActual, isPlaying } = storeToRefs(musicStore)
 
 const toSongPage = () => {
+    let id = 0
+
+    for (let i = 0; i < musicStore.audioInfo.length; i++) {
+        if (musicStore.curPlayListActual[curPlayIndex.value].url == musicStore.audioInfo[i].audio.url) {
+            id = musicStore.audioInfo[i].id
+
+            break
+        }
+    }
+
     router.push({
         name: 'song',
-        params: { id: '=' + musicStore.audioInfo[curPlayIndex.value].id }
+        params: { id: '=' + id }
     })
 }
 
@@ -137,6 +146,16 @@ const playListClick = (index) => {
     musicStore.audio.list.switch(index)
     musicStore.isPlaying = true
     musicStore.audio.play()
+}
+
+const currentSongCover = computed(() => {
+    return curPlayListActual.value[curPlayIndex.value]?.cover
+})
+
+const getCurrentSongCover = () => {    
+    return currentSongCover.value
+        ? { background: `url(${currentSongCover.value})`, backgroundSize: 'cover' }
+        : {}
 }
 
 // const audioPlayTime = ref([])
@@ -152,15 +171,15 @@ const playListClick = (index) => {
 //     })
 // }
 
-const isExistCover = ref([])
+// const isExistCover = ref([])
 
-for (let i = 0; i < musicStore.curPlayListActual.length; i++) {
-    if (musicStore.curPlayListActual[i].cover) {
-        isExistCover.value.push({ background: 'url(' + musicStore.curPlayListActual[i].cover + ')', backgroundSize: 'cover' })
-    } else {
-        isExistCover.value.push({})
-    }
-}
+// for (let i = 0; i < musicStore.curPlayListActual.length; i++) {
+//     if (musicStore.curPlayListActual[i].cover) {
+//         isExistCover.value.push({ background: 'url(' + musicStore.curPlayListActual[i].cover + ')', backgroundSize: 'cover' })
+//     } else {
+//         isExistCover.value.push({})
+//     }
+// }
 
 const volume = ref(100)
 

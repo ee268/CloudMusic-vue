@@ -131,12 +131,12 @@
                     padding-left: 10px;
                     border-right: 1px solid black;
                     font-size: 14px;
+                    transition: all 0.5s ease;
 
                     &:hover {
                         color: #C20C0C;
                         background: none;
                         font-size: 17px;
-                        transition: all 0.5s ease;
                     }
 
                     &.is-active {
@@ -162,7 +162,7 @@
             background-size: cover;
             border-radius: 5%;
             transform: scale(1);
-
+            transition: all 0.3s ease;
 
             .play-info {
                 width: 100%;
@@ -208,8 +208,6 @@
                     border-radius: inherit;
                     backdrop-filter: blur(10px);
                 }
-
-                transition: all 0.3s ease;
             }
         }
 

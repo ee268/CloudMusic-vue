@@ -161,10 +161,10 @@
                     background: #C20C0C;
                     border: none;
                     transform: scale(1);
+                    transition: all 0.3s ease-in-out;
 
                     &:hover {
                         transform: scale(1.1);
-                        transition: all 0.3s ease-in-out;
                     }
                 }
             }
@@ -184,7 +184,7 @@
                 background-size: cover;
                 border-radius: 5%;
                 transform: scale(1);
-
+                transition: all 0.3s ease;
 
                 .play-info {
                     width: 100%;
@@ -246,8 +246,6 @@
                         border-radius: inherit;
                         backdrop-filter: blur(10px);
                     }
-
-                    transition: all 0.3s ease;
                 }
             }
 

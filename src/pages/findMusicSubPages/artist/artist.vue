@@ -77,6 +77,7 @@ onMounted(() => {
 
             .el-menu-item {
                 color: #333;
+                transition: all 0.3s;
 
                 &:hover {
                     background-color: rgba(194, 12, 12, 0.1);
@@ -85,7 +86,6 @@ onMounted(() => {
 
                 &.is-active {
                     background-color: #C20C0C;
-                    transition: all 0.3s;
                     color: white;
                 }
             }

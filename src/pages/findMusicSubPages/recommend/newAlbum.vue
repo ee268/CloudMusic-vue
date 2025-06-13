@@ -81,6 +81,7 @@ import newAlbumCarousel from './newAlbumCarousel.vue'
                 background: none;
                 border: none;
                 padding: 0;
+                transition: all 0.3s ease-in-out;
 
                 .el-text {
                     color: #C20C0C;
@@ -96,7 +97,6 @@ import newAlbumCarousel from './newAlbumCarousel.vue'
                     }
 
                     background: #C20C0C;
-                    transition: all 0.3s ease-in-out;
                 }
             }
         }

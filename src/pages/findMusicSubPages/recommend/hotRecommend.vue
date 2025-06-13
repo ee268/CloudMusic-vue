@@ -31,8 +31,8 @@
                 </div>
             </template>
             <div class="card-music">
-                <div v-for="i in 8" :key="i">
-                    <div class="music-cover">
+                <div v-for="(list, i) in displayPlayList" :key="i">
+                    <div class="music-cover" :style="songListCover[i]">
                         <div class="play-info">
                             <div class="play-button">
                                 <el-button>
@@ -46,13 +46,13 @@
                                     <el-icon>
                                         <Headset />
                                     </el-icon>
-                                    114514
+                                    {{ Math.floor(Math.random() * 5000) }}
                                 </el-text>
                             </div>
                         </div>
                     </div>
                     <div class="music-title">
-                        标题标题标题标题标题标题标题标题标题
+                        {{ list.name }}
                     </div>
                 </div>
             </div>
@@ -62,16 +62,46 @@
 
 <script setup>
 import carousel from './recommendCarousel.vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMenuStore } from '@/stores/menu'
+import { useMusicStore } from '../../../stores/music'
 
 const router = useRouter()
 
 const menuStore = useMenuStore()
+const musicStore = useMusicStore()
 
 const toPlayListClassifyPage = () => {
     menuStore.subMenuRef.updateActiveIndex('1')
     router.push({ name: 'playList' })
+}
+
+const displayPlayList = ref([])
+
+for (let i = 0; i < 8; i++) {
+    let k = Math.floor(Math.random() * musicStore.playList.length)
+    displayPlayList.value.push(musicStore.playList[k])
+}
+
+const songListCover = ref([])
+for (let i = 0; i < 8; i++) {
+    if (displayPlayList.value[i].cover) {
+        songListCover.value.push({
+            background: `url(${displayPlayList.value[i].cover})`,
+            backgroundSize: 'cover'
+        })
+    } else if (displayPlayList.value[i].audios?.length > 0 && displayPlayList.value[i].audios[0].audio?.cover) {
+        songListCover.value.push({
+            background: `url(${displayPlayList.value[i].audios[0].audio.cover})`,
+            backgroundSize: 'cover'
+        })
+    } else {
+        songListCover.value.push({
+            background: 'url(/public/cover/default-playlist-cover.jpg)',
+            backgroundSize: 'cover'
+        })
+    }
 }
 
 </script>
@@ -131,12 +161,12 @@ const toPlayListClassifyPage = () => {
                     padding-left: 10px;
                     border-right: 1px solid black;
                     font-size: 14px;
+                    transition: all 0.5s ease;
 
                     &:hover {
                         color: #C20C0C;
                         background: none;
                         font-size: 17px;
-                        transition: all 0.5s ease;
                     }
 
                     &.is-active {
@@ -158,6 +188,7 @@ const toPlayListClassifyPage = () => {
                 background: none;
                 border: none;
                 padding: 0;
+                transition: all 0.3s ease-in-out;
 
                 .el-text {
                     color: #C20C0C;
@@ -173,7 +204,6 @@ const toPlayListClassifyPage = () => {
                     }
 
                     background: #C20C0C;
-                    transition: all 0.3s ease-in-out;
                 }
             }
         }
@@ -193,7 +223,7 @@ const toPlayListClassifyPage = () => {
             background-size: cover;
             border-radius: 5%;
             transform: scale(1);
-
+            transition: all 0.3s ease;
 
             .play-info {
                 width: 100%;
@@ -255,8 +285,6 @@ const toPlayListClassifyPage = () => {
                     border-radius: inherit;
                     backdrop-filter: blur(10px);
                 }
-
-                transition: all 0.3s ease;
             }
         }
 

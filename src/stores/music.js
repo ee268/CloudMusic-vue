@@ -3,8 +3,11 @@ import { ref } from 'vue'
 import 'aplayer/dist/APlayer.min.css'
 import APlayer from 'aplayer'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from './user'
 
 export const useMusicStore = defineStore('music', () => {
+    const userStore = useUserStore()
+
     const audio = ''
 
     const audioList = ref([
@@ -29,6 +32,7 @@ export const useMusicStore = defineStore('music', () => {
         {
             name: 'Limit 70',
             artist: 'Limit 70',
+            cover: '/public/cover/default-playlist-cover.jpg',
             url: 'http://localhost:5000/files/Limit_70.mp3'
         },
         {
@@ -61,13 +65,10 @@ export const useMusicStore = defineStore('music', () => {
 
     function clearCurPlayList() {
         curPlayList.value = []
-        console.log('cleaCurPlayList', curPlayList.value);
     }
 
     function clearCurPlayListActual() {
         curPlayListActual.value = []
-
-        console.log('clearCurPlayListActual', curPlayListActual.value);
     }
 
     function addCurPlayListActual(audio) {
@@ -194,6 +195,19 @@ export const useMusicStore = defineStore('music', () => {
 
     function removePlayList(id) {
         playList.value = playList.value.filter(item => item.id !== id)
+
+        let userInfo = userStore.getUserId(localStorage.getItem('acc_id'))
+
+        let list_update = []
+
+        for (let i = 0; i < userInfo.create_playlist.length; i++) {
+            let list = getPlayListId(userInfo.create_playlist[i])
+            if (list) {
+                list_update.push(userInfo.create_playlist[i])
+            }
+        }
+
+        userInfo.create_playlist = list_update
 
         localStorage.setItem('playList', JSON.stringify(playList.value))
     }

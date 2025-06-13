@@ -14,10 +14,6 @@
                             <el-button @click="editUserInfo">编辑个人资料</el-button>
                         </div>
                         <div class="user-cnt">
-                            <div @click="showArticle">
-                                <div>{{ userInfo.article_cnt }}</div>
-                                <div>动态</div>
-                            </div>
                             <div @click="showFollow">
                                 <div>{{ userInfo.follow_cnt }}</div>
                                 <div>关注</div>
@@ -69,7 +65,7 @@
                                         <el-icon>
                                             <Headset />
                                         </el-icon>
-                                        114514
+                                        {{ Math.floor(Math.random() * 5000) }}
                                     </el-text>
                                 </div>
                             </div>
@@ -103,7 +99,7 @@
                                         <el-icon>
                                             <Headset />
                                         </el-icon>
-                                        114514
+                                        {{ Math.floor(Math.random() * 5000) }}
                                     </el-text>
                                 </div>
                             </div>
@@ -113,14 +109,6 @@
                         </div>
                     </div>
                 </div>
-            </el-card>
-
-            <el-card v-show="showArticleCnt">
-                <template #header>
-                    <div class="card-header">
-                        <div class="card-header-title">我的动态{{ '(' + userInfo.article_cnt + ')' }}</div>
-                    </div>
-                </template>
             </el-card>
 
             <el-card v-show="showFollowCnt">
@@ -436,7 +424,7 @@ const getPlaylistCover = (list) => {
                 background-size: cover;
                 border-radius: 5%;
                 transform: scale(1);
-
+                transition: all 0.3s ease;
 
                 .play-info {
                     width: 100%;
@@ -498,8 +486,6 @@ const getPlaylistCover = (list) => {
                         border-radius: inherit;
                         backdrop-filter: blur(5px);
                     }
-
-                    transition: all 0.3s ease;
                 }
             }
 
@@ -541,10 +527,10 @@ const getPlaylistCover = (list) => {
             background: #C20C0C;
             border: none;
             transform: scale(1);
+            transition: all 0.3s ease-in-out;
 
             &:hover {
                 transform: scale(1.1);
-                transition: all 0.3s ease-in-out;
             }
         }
     }

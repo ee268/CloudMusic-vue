@@ -54,7 +54,7 @@
                                     <el-icon>
                                         <Headset />
                                     </el-icon>
-                                    114514
+                                    {{ Math.floor(Math.random() * 5000) }}
                                 </el-text>
                             </div>
                         </div>
@@ -82,7 +82,7 @@
                                     <el-icon>
                                         <Headset />
                                     </el-icon>
-                                    114514
+                                    {{ Math.floor(Math.random() * 5000) }}
                                 </el-text>
                             </div>
                         </div>
@@ -180,6 +180,7 @@ const getWeek = () => {
                 background: none;
                 border: none;
                 padding: 0;
+                transition: all 0.3s ease-in-out;
 
                 .el-text {
                     color: #C20C0C;
@@ -195,7 +196,6 @@ const getWeek = () => {
                     }
 
                     background: #C20C0C;
-                    transition: all 0.3s ease-in-out;
                 }
             }
         }
@@ -215,6 +215,7 @@ const getWeek = () => {
             background-size: cover;
             border-radius: 5%;
             transform: scale(1);
+            transition: all 0.3s ease;
 
             &.music-cover-person {
                 display: flex;
@@ -320,8 +321,6 @@ const getWeek = () => {
                     border-radius: inherit;
                     backdrop-filter: blur(10px);
                 }
-
-                transition: all 0.3s ease;
             }
         }
 

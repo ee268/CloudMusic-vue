@@ -168,7 +168,8 @@ const addToAudioList = () => {
         return
     }
 
-    musicStore.addCurPlayList(musicInfo.value)
+    musicStore.addCurPlayListActual(musicInfo.value)
+    musicStore.audio.list.add(musicInfo.value)
 
     ElMessage({
         showClose: true,
@@ -303,7 +304,7 @@ const closeCollectDialog = () => {
                 &.default-cover {
                     width: 200px;
                     height: 200px;
-                    background: url('/public/cover/defaultCover.svg') no-repeat center;
+                    background: url('/public/cover/default-playlist-cover.jpg') no-repeat center;
                     background-size: cover;
                     border-radius: 50%;
                 }

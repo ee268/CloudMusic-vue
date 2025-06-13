@@ -51,7 +51,6 @@ for (let i = 0; i < curUser.create_playlist.length; i++) {
         createPlayList.value.push(list)
     }
 }
-console.log(createPlayList.value);
 
 
 

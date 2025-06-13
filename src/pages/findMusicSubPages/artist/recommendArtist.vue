@@ -150,11 +150,10 @@ const toSignedArtist = (event) => {
                 border-radius: 5%;
                 transform: scale(1);
                 cursor: pointer;
+                transition: all 0.3s ease;
 
                 &:hover {
                     transform: scale(1.1);
-
-                    transition: all 0.3s ease;
                 }
             }
         }
@@ -166,6 +165,7 @@ const toSignedArtist = (event) => {
             align-items: center;
             justify-content: space-between;
             gap: 5px;
+            transition: all 0.3s;
 
             div {
                 text-wrap: nowrap;
@@ -176,7 +176,6 @@ const toSignedArtist = (event) => {
 
             &:hover {
                 color: #C20C0C;
-                transition: all 0.3s;
                 cursor: pointer;
             }
         }
@@ -196,6 +195,7 @@ const toSignedArtist = (event) => {
                 align-items: center;
                 justify-content: center;
                 gap: 5px;
+                transition: all 0.3s;
 
                 div {
                     text-wrap: nowrap;
@@ -206,7 +206,6 @@ const toSignedArtist = (event) => {
 
                 &:hover {
                     color: #C20C0C;
-                    transition: all 0.3s;
                     cursor: pointer;
                 }
             }

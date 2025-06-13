@@ -108,6 +108,7 @@ const nextCarousel = () => {
                         background: url('/public/cover/1.jpg');
                         background-size: cover;
                         border-radius: 5%;
+                        transition: all 0.3s ease;
 
                         .play-button {
                             height: 100%;
@@ -144,7 +145,6 @@ const nextCarousel = () => {
 
                             cursor: pointer;
                             transform: scale(1.1);
-                            transition: all 0.3s ease;
                         }
                     }
 

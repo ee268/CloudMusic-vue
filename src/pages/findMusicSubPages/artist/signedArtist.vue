@@ -76,11 +76,10 @@
                 border-radius: 5%;
                 transform: scale(1);
                 cursor: pointer;
+                transition: all 0.3s ease;
 
                 &:hover {
                     transform: scale(1.1);
-
-                    transition: all 0.3s ease;
                 }
             }
         }
@@ -92,6 +91,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 5px;
+            transition: all 0.3s;
 
             div {
                 text-wrap: nowrap;
@@ -102,7 +102,6 @@
 
             &:hover {
                 color: #C20C0C;
-                transition: all 0.3s;
                 cursor: pointer;
             }
         }
@@ -130,7 +129,7 @@
             :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
                 background-color: #C20C0C !important;
                 color: white;
-                border-color: transparent;  
+                border-color: transparent;
             }
         }
     }

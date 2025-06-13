@@ -12,7 +12,7 @@
                             <div>歌单</div>
                             <div>{{ songList.name }}</div>
                             <div>
-                                <el-button @click="deletePlayList">
+                                <el-button v-show="isOwnPlayList" @click="deletePlayList">
                                     <el-icon>
                                         <Delete />
                                     </el-icon>
@@ -142,6 +142,8 @@ const songListTag = ref(songList.value.label)
 const songListCover = ref({})
 
 const data = songList.value.audios
+
+const isOwnPlayList = ref(songList.value.creator_id == localStorage.getItem('acc_id'))
 
 const initializeSongList = () => {
     const list = musicStore.getPlayListId(router.currentRoute.value.params.id.substring(1))
@@ -353,9 +355,6 @@ const deletePlayList = () => {
 }
 
 const deleteSong = (index) => {
-    //     console.log(data[index]);
-    //     console.log(songList.value.id);
-
     songListData.value.splice(index, 1)
 
     musicStore.removeFromPlayList(songList.value.id, data[index].id)
@@ -383,6 +382,7 @@ const play_playList = () => {
         musicStore.audio.list.add(audioData)
         musicStore.addCurPlayListActual(audioData)
     }
+    console.log(musicStore.curPlayListActual);
 
     musicStore.audio.list.switch(0)
     setTimeout(() => {

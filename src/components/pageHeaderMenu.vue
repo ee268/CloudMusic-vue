@@ -36,12 +36,12 @@ const mainMenuRef = ref()
 const Menu = useMenuStore()
 const { menuRef, isMenuActive, setMenuRef } = storeToRefs(Menu)
 
-const Login =  useCounterStore()
+const Login = useCounterStore()
 const { acc_id } = storeToRefs(Login)
 
 onMounted(() => {
     Menu.setMenuRef(mainMenuRef.value)
-    
+
     router.beforeEach((to, from, next) => {
         if (!to.meta.subMenu) {
             Menu.menuRef.updateActiveIndex(to.meta.index)

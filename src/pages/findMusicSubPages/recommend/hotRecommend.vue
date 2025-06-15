@@ -73,7 +73,6 @@ const menuStore = useMenuStore()
 const musicStore = useMusicStore()
 
 const toPlayListClassifyPage = () => {
-    menuStore.subMenuRef.updateActiveIndex('1')
     router.push({ name: 'playList' })
 }
 
@@ -81,6 +80,10 @@ const displayPlayList = ref([])
 
 for (let i = 0; i < 8; i++) {
     let k = Math.floor(Math.random() * musicStore.playList.length)
+    if (musicStore.playList[k].belong_user || musicStore.playList[k].id.indexOf('privacyRadar') != -1) {
+        i--
+        continue
+    }
     displayPlayList.value.push(musicStore.playList[k])
 }
 

@@ -14,11 +14,11 @@
 
             <div class="card-music">
                 <div>
-                    <div class="music-cover music-cover-person">
+                    <div class="music-cover music-cover-person" @click="toDailyPlayList">
                         <div class="week"> {{ getWeek() }} </div>
                         <div class="day"> {{ day }} </div>
                     </div>
-                    <div class="music-title">
+                    <div class="music-title" @click="toDailyPlayList">
                         每日歌曲推荐
                     </div>
                     <div class="recommend-content">
@@ -27,12 +27,13 @@
                 </div>
 
                 <div>
-                    <div class="music-cover music-cover-radar">
+                    <div class="music-cover music-cover-radar"
+                        :style="{ background: `url(/public/cover/${Math.floor(Math.random() * 40) + 1}.jpg)`, backgroundSize: 'cover' }">
                         <div class="play-info">
                             <div class="radar-icon"></div>
 
                             <div class="play-button">
-                                <el-button>
+                                <el-button @click="toPrivacyRadar">
                                     <el-icon size="40">
                                         <VideoPlay />
                                     </el-icon>
@@ -49,7 +50,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="music-title">
+                    <div class="music-title" @click="toPrivacyRadar">
                         私人雷达
                     </div>
                     <div class="recommend-content">
@@ -57,11 +58,12 @@
                     </div>
                 </div>
 
-                <div v-for="i in 2" :key="i">
-                    <div class="music-cover">
+                <div v-for="(list, i) in displayPlayList" :key="i">
+                    <div class="music-cover" :style="displayPlayListCover[i]">
                         <div class="play-info">
                             <div class="play-button">
-                                <el-button>
+                                <el-button
+                                    @click="() => { router.push({ name: 'list', params: { id: '=' + list.id } }) }">
                                     <el-icon size="40">
                                         <VideoPlay />
                                     </el-icon>
@@ -77,8 +79,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="music-title">
-                        标题标题标题标题标题标题标题标题标题
+                    <div class="music-title"
+                        @click="() => { router.push({ name: 'list', params: { id: '=' + list.id } }) }">
+                        {{ list.name }}
                     </div>
                 </div>
             </div>
@@ -88,6 +91,47 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useMusicStore } from '../../../stores/music'
+import { useUserStore } from '../../../stores/user'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const userStore = useUserStore()
+const musicStore = useMusicStore()
+
+const dailyPlayList = ref([])
+const privacyRadar = ref([])
+const displayPlayList = ref([])
+
+for (let i = 0; i < 2; i++) {
+    let k = Math.floor(Math.random() * musicStore.playList.length)
+    let isExist = displayPlayList.value.find(item => item.id === musicStore.playList[k].id)
+    if (isExist || musicStore.playList[k].belong_user || musicStore.playList[k].id.indexOf('privacyRadar') != -1) {
+        i--
+        continue
+    }
+    displayPlayList.value.push(musicStore.playList[k])
+}
+
+const displayPlayListCover = ref([])
+for (let i = 0; i < 2; i++) {
+    if (displayPlayList.value[i].cover) {
+        displayPlayListCover.value.push({
+            background: `url(${displayPlayList.value[i].cover})`,
+            backgroundSize: 'cover'
+        })
+    } else if (displayPlayList.value[i].audios?.length > 0 && displayPlayList.value[i].audios[0].audio?.cover) {
+        displayPlayListCover.value.push({
+            background: `url(${displayPlayList.value[i].audios[0].audio.cover})`,
+            backgroundSize: 'cover'
+        })
+    } else {
+        displayPlayListCover.value.push({
+            background: 'url(/public/cover/default-playlist-cover.jpg)',
+            backgroundSize: 'cover'
+        })
+    }
+}
 
 const props = defineProps({
     isShow: {
@@ -118,7 +162,108 @@ const getWeek = () => {
     }
 }
 
+function getCurrentTime() {
+    const now = new Date(); // 获取当前日期和时间
+    const hours = now.getHours(); // 获取小时 (0-23)
+    const minutes = now.getMinutes(); // 获取分钟 (0-59)
 
+    return [hours, minutes]
+}
+
+function getNowFormatDate() {
+    let date = new Date(),
+        year = date.getFullYear(), //获取完整的年份(4位)
+        month = date.getMonth() + 1, //获取当前月份(0-11,0代表1月)
+        strDate = date.getDate() // 获取当前日(1-31)
+    if (month < 10) month = `0${month}` // 如果月份是个位数，在前面补0
+    if (strDate < 10) strDate = `0${strDate}` // 如果日是个位数，在前面补0
+
+    return `${year}-${month}-${strDate}`
+}
+
+const createDailyPlayList = () => {
+    let list = []
+    for (let i = 0; i < 30; i++) {
+        let rand = Math.floor(Math.random() * musicStore.audioInfo.length)
+        let isExist = list.find(item => item.id == musicStore.audioInfo[rand].id)
+        if (isExist) {
+            i--
+            continue
+        }
+
+        list.push(musicStore.audioInfo[rand])
+    }
+
+    dailyPlayList.value = {
+        name: '每日推荐',
+        id: `dailyPlayList_${Date.now()}`,
+        cover: '',
+        creator_id: '3638546782',
+        intro: '每日推荐',
+        label: ['推荐'],
+        create_time: getNowFormatDate(),
+        audios: list,
+        belong_user: localStorage.getItem('acc_id')
+    }
+
+    musicStore.addPlayList(dailyPlayList.value)
+}
+
+const toDailyPlayList = () => {
+    let time = getCurrentTime()
+    let date = getNowFormatDate().substring(5)
+    console.log(date);
+
+    let user = userStore.getUserId(localStorage.getItem('acc_id'))
+
+    let isExist = musicStore.playList.find(item => item.belong_user == user.acc_id)
+    dailyPlayList.value = isExist
+    console.log(dailyPlayList.value);
+
+    if (!isExist || (isExist && isExist.create_time.substring(5) != date) || (time[0] == 6 && time[1] == 0)) {
+        dailyPlayList.value = []
+        createDailyPlayList()
+    }
+
+    router.push({ name: 'list', params: { id: '=' + dailyPlayList.value.id } })
+}
+
+const toPrivacyRadar = () => {
+    let isExist = musicStore.getPlayListId('privacyRadar')
+
+    let list = []
+    for (let i = 0; i < 30; i++) {
+        let rand = Math.floor(Math.random() * musicStore.audioInfo.length)
+        let isExist = list.find(item => item.id == musicStore.audioInfo[rand].id)
+        if (isExist) {
+            i--
+            continue
+        }
+
+        list.push(musicStore.audioInfo[rand])
+    }
+
+    if (isExist) {
+        isExist.audios = list
+        isExist.create_time = getNowFormatDate()
+
+        router.push({ name: 'list', params: { id: '=' + isExist.id } })
+    }
+    else {
+        privacyRadar.value = {
+            name: '私人雷达',
+            id: 'privacyRadar',
+            cover: '',
+            creator_id: '3638546782',
+            intro: '私人雷达',
+            label: ['雷达'],
+            create_time: getNowFormatDate(),
+            audios: list,
+        }
+
+        musicStore.addPlayList(privacyRadar.value)
+    }
+}
 
 </script>
 
@@ -204,7 +349,7 @@ const getWeek = () => {
             }
 
             &.music-cover-radar {
-                background: url('/src/assets/COVER.jpg') no-repeat center;
+                background: url('/public/cover/11.jpg') no-repeat center;
                 background-size: cover;
             }
 

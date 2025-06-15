@@ -512,7 +512,7 @@ const nextMusic = () => {
 
 .playListDropdown {
     height: 350px;
-    overflow-y: scroll;
+    overflow-y: hidden;
 
     .el-dropdown-menu {
         background: #2B2B2B !important;

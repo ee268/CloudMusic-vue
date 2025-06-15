@@ -8,9 +8,9 @@
                             <BellFilled />
                         </el-icon>
                     </div>
-                    <div class="card-header-title">新碟上架</div>
+                    <div class="card-header-title">新曲上架</div>
                     <div class="more">
-                        <el-button>
+                        <el-button @click="toNewAlbum">
                             <el-text size="small">
                                 更多
                                 <el-icon color="#C20C0C">
@@ -29,6 +29,16 @@
 
 <script setup>
 import newAlbumCarousel from './newAlbumCarousel.vue'
+import { useMenuStore } from '@/stores/menu'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const menuStore = useMenuStore()
+
+const toNewAlbum = () => {
+    router.push({ name: 'album' })
+}
 </script>
 
 <style lang="scss" scoped>

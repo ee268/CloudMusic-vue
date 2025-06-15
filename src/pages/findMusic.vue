@@ -8,7 +8,7 @@
 
                 <el-menu-item index="2" :route="{ name: 'artist' }">歌手</el-menu-item>
 
-                <el-menu-item index="3" :route="{ name: 'album' }">新碟上架</el-menu-item>
+                <el-menu-item index="3" :route="{ name: 'album' }">新曲上架</el-menu-item>
             </template>
         </pageHeaderSubMenu>
         <router-view></router-view>
@@ -26,6 +26,23 @@ const Menu = useMenuStore()
 const { setSubMenuRef } = storeToRefs(Menu)
 
 const router = useRouter()
+
+router.beforeEach((to, from, next) => {
+    if (to.fullPath.indexOf('recommend') != -1) {
+        Menu.subMenuRef.updateActiveIndex(0)
+    }
+    else if (to.fullPath.indexOf('playList') != -1) {
+        Menu.subMenuRef.updateActiveIndex(1)
+    }
+    else if (to.fullPath.indexOf('artist') != -1) {
+        Menu.subMenuRef.updateActiveIndex(2)
+    }
+    else if (to.fullPath.indexOf('album') != -1) {
+        Menu.subMenuRef.updateActiveIndex(3)
+    }
+
+    next()
+})
 
 onMounted(() => {
     Menu.subMenuRef.updateActiveIndex(router.currentRoute.value.meta.index)

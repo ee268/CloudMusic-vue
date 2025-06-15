@@ -42,7 +42,7 @@
                             </div>
 
                             <div class="collect-btn">
-                                <el-button @click="collectPlayList($event)" :disabled="isCollect == '已收藏'">
+                                <el-button @click="collectPlayList($event)">
                                     <el-icon size="20">
                                         <FolderAdd />
                                     </el-icon>
@@ -70,7 +70,7 @@
                 <div class="songList-songs">
                     <el-table :data="songListData" empty-text="暂无歌曲" stripe @cell-mouse-enter="rowEnterHover"
                         @cell-mouse-leave="rowLeaveHover">
-                        <el-table-column type="index" width="30" />
+                        <el-table-column type="index" />
 
                         <el-table-column width="50">
                             <template #default="scope">
@@ -91,7 +91,7 @@
                         <el-table-column prop="playTime" label="时长" width="100">
                             <template #default="scope">
                                 <span v-show="!isHoverRow[scope.row.index]">{{ scope.row.playTime }}</span>
-                                
+
                                 <span v-show="isHoverRow[scope.row.index]" style="margin-right: 5px;">
                                     <el-icon class="add-btn" size="20"
                                         @click="singleSongAddToPlayList(scope.row.index)">
@@ -441,6 +441,20 @@ const collectPlayList = (event) => {
             plain: true,
             duration: 2500
         })
+
+        return
+    }
+
+    if (isCollect.value == '已收藏') {
+        ElMessage({
+            showClose: true,
+            message: '已取消收藏',
+            type: 'info',
+            plain: true,
+            duration: 2500
+        })
+        isCollect.value = '收藏'
+        userStore.removeCollectPlayList(user.acc_id, songList.value.id)
 
         return
     }

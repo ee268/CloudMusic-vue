@@ -71,6 +71,8 @@ const nextCarousel = () => {
 const toSingleSongPage = (song) => {
     route.push({ name: 'song', params: { id: '=' + song.id } })
 }
+
+
 </script>
 
 <style lang="scss" scoped>

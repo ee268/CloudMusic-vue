@@ -10,9 +10,11 @@
                 :ref="($event) => carousel = $event">
 
                 <el-carousel-item v-for="i in 2" :key="i">
-                    <div class="albumContainer" v-for="i in 5" :key="i">
+                    <div class="albumContainer" v-for="j in 5" :key="j">
                         <div class="album">
-                            <div class="albumCover">
+                            <div class="albumCover"
+                                :style="{ background: `url(${displayMusic[i + j].audio.cover})`, backgroundSize: 'cover' }"
+                                @click="toSingleSongPage(i + j)">
                                 <div class="play-button">
                                     <el-button>
                                         <el-icon size="40">
@@ -21,8 +23,9 @@
                                     </el-button>
                                 </div>
                             </div>
-                            <div class="albumTitle">标题标题标题</div>
-                            <div class="albumAuthor">作者作者</div>
+                            <div class="albumTitle" @click="toSingleSongPage(i + j)">{{ displayMusic[i + j].audio.name
+                            }}</div>
+                            <div class="albumAuthor">{{ displayMusic[i + j].audio.artist }}</div>
                         </div>
                     </div>
                 </el-carousel-item>
@@ -38,8 +41,29 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useMusicStore } from '../../../stores/music'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const musicStore = useMusicStore()
 
 const carousel = ref(null)
+
+const displayMusic = ref([])
+for (let i = 0; i < 10; i++) {
+    let k = Math.floor(Math.random() * musicStore.audioInfo.length)
+    let isExist = displayMusic.value.find(item => item.id == musicStore.audioInfo[k].id)
+    if (isExist) {
+        i--
+        continue
+    }
+    displayMusic.value.push(musicStore.audioInfo[k])
+}
+
+const toSingleSongPage = (index) => {
+    router.push({ name: 'song', params: { id: '=' + displayMusic.value[index].id } })
+}
 
 const prevCarousel = () => {
     carousel.value.prev()
@@ -96,13 +120,12 @@ const nextCarousel = () => {
             gap: 20px;
 
             .albumContainer {
-
                 .album {
+                    width: 8vw;
                     display: flex;
                     flex-direction: column;
 
                     .albumCover {
-                        width: 8vw;
                         height: 8vw;
                         backdrop-filter: blur(0);
                         background: url('/public/cover/1.jpg');
@@ -149,6 +172,9 @@ const nextCarousel = () => {
                     }
 
                     .albumTitle {
+                        text-wrap: nowrap;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
                         margin-top: 5px;
                         color: black;
                         font-size: 14px;
@@ -161,6 +187,9 @@ const nextCarousel = () => {
                     }
 
                     .albumAuthor {
+                        text-wrap: nowrap;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
                         font-size: 13px;
                         color: #666666;
                     }

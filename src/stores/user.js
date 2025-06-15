@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 import { ElMessage } from "element-plus"
+import { useMusicStore } from './music'
 
 export const useUserStore = defineStore('userInfo', () => {
+    const musicStore = useMusicStore()
+
     const userInfo = [
         {
             account: '123',
@@ -23,7 +26,6 @@ export const useUserStore = defineStore('userInfo', () => {
 
     console.log(userInfo);
 
-
     if (localStorage.getItem('userInfo')) {
         let JsonUserInfo = JSON.parse(localStorage.getItem('userInfo'))
 
@@ -34,6 +36,19 @@ export const useUserStore = defineStore('userInfo', () => {
         for (let i = userInfo.length; i < JsonUserInfo.length; i++) {
             userInfo.push(JsonUserInfo[i])
         }
+    }
+
+    for (let i = 0; i < userInfo.length; i++) {
+        let newCreatePlaylist = []
+
+        for (let j = 0; j < userInfo[i].create_playlist.length; j++) {
+            let list = musicStore.playList.find(item => item.id === userInfo[i].create_playlist[j])
+
+            if (list) {
+                newCreatePlaylist.push(list.id)
+            }
+        }
+        userInfo[i].create_playlist = newCreatePlaylist
     }
 
     const getUser = (account) => {
@@ -92,5 +107,17 @@ export const useUserStore = defineStore('userInfo', () => {
         return true
     }
 
-    return { userInfo, getUser, addUser, getUserId, updateUserInfo, updateCreatePlayList, updateCollectPlayList }
+    const removeCollectPlayList = (userId, playListId) => { 
+        for (let i = 0; i < userInfo.length; i++) {
+            if (userInfo[i].acc_id == userId) {
+                for (let j = 0; j < userInfo[i].collect_playlist.length; j++) {
+                    if (userInfo[i].collect_playlist[j] == playListId) {
+                        userInfo[i].collect_playlist.splice(j, 1)
+                    }
+                }
+            }
+        }
+    }
+
+    return { userInfo, getUser, addUser, getUserId, updateUserInfo, updateCreatePlayList, updateCollectPlayList, removeCollectPlayList }
 })

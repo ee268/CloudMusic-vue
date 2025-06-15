@@ -126,6 +126,7 @@ export const useMusicStore = defineStore('music', () => {
     else {
         localStorage.setItem('playList', JSON.stringify(playList.value))
     }
+    console.log('全部歌单', playList.value);
 
     function addAudio(name, url) {
         let cover_random = Math.floor(Math.random() * (40 - 1 + 1)) + 1

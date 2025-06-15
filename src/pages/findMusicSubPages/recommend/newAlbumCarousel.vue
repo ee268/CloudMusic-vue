@@ -13,8 +13,8 @@
                     <div class="albumContainer" v-for="j in 5" :key="j">
                         <div class="album">
                             <div class="albumCover"
-                                :style="{ background: `url(${displayMusic[i + j].audio.cover})`, backgroundSize: 'cover' }"
-                                @click="toSingleSongPage(i + j)">
+                                :style="{ background: `url(${displayMusic[j - 1 + (5 * (i - 1))].audio.cover})`, backgroundSize: 'cover' }"
+                                @click="toSingleSongPage(j - 1 + (5 * (i - 1)))">
                                 <div class="play-button">
                                     <el-button>
                                         <el-icon size="40">
@@ -23,9 +23,12 @@
                                     </el-button>
                                 </div>
                             </div>
-                            <div class="albumTitle" @click="toSingleSongPage(i + j)">{{ displayMusic[i + j].audio.name
-                            }}</div>
-                            <div class="albumAuthor">{{ displayMusic[i + j].audio.artist }}</div>
+                            <div class="albumTitle" @click="toSingleSongPage(j - 1 + (5 * (i - 1)))">
+                                {{
+                                    displayMusic[j - 1 + (5 * (i - 1))].audio.name
+                                }}
+                            </div>
+                            <div class="albumAuthor">{{ displayMusic[j - 1 + (5 * (i - 1))].audio.artist }}</div>
                         </div>
                     </div>
                 </el-carousel-item>

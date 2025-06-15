@@ -3,27 +3,29 @@
         <el-card>
             <template #header>
                 <div class="card-header">
-                    <div class="card-header-title">全部</div>
+                    <div class="card-header-title">{{ curLabel }}</div>
                     <div class="select-classify">
-                        <el-popover trigger="click" placement="bottom">
+                        <el-popover trigger="click" :visible="isClose" placement="bottom">
                             <template #default>
                                 <div class="classify-list">
                                     <div class="classify-header">
-                                        <el-button>
+                                        <el-button @click="() => { curLabel = all; isClose = false }">
                                             全部风格
                                         </el-button>
                                     </div>
                                     <div class="classify-body">
                                         <div class="classify-item" v-for="(item, index) in label" :key="index">
-                                            <div class="classify-name">
+                                            <div class="classify-name"
+                                                :style="{ background: index % 2 != 0 ? '#F7F7F7' : 'white' }">
                                                 <el-icon size="27" color="#9D9D9D">
                                                     <Comment />
                                                 </el-icon>
                                                 {{ item.type }}
                                             </div>
-                                            <div class="classify-sub-name">
+                                            <div class="classify-sub-name"
+                                                :style="{ background: index % 2 != 0 ? '#F7F7F7' : 'white' }">
                                                 <div class="item" v-for="tag in item.label" :key="tag">
-                                                    <el-button>{{ tag }}</el-button>
+                                                    <el-button @click="selectTag(tag)">{{ tag }}</el-button>
                                                 </div>
                                             </div>
                                         </div>
@@ -32,7 +34,7 @@
                             </template>
 
                             <template #reference>
-                                <el-button>
+                                <el-button @click="isClose = !isClose">
                                     选择分类
                                     <el-icon>
                                         <ArrowDown />
@@ -41,7 +43,7 @@
                             </template>
                         </el-popover>
                     </div>
-                    <div class="hot">
+                    <div class="hot" @click="() => { curLabel = all }">
                         <el-button>
                             热门
                         </el-button>
@@ -49,8 +51,8 @@
                 </div>
             </template>
             <div class="card-music">
-                <div v-for="i in 35" :key="i">
-                    <div class="music-cover">
+                <div v-for="(list, i) in curLabelPlayList" :key="i">
+                    <div class="music-cover" :style="curLabelPlayListCover[i]" @click="toPlayListPage(list)">
                         <div class="play-info">
                             <div class="play-button">
                                 <el-button>
@@ -64,30 +66,98 @@
                                     <el-icon>
                                         <Headset />
                                     </el-icon>
-                                    114514
+                                    {{ Math.floor(Math.random() * 5000) }}
                                 </el-text>
                             </div>
                         </div>
                     </div>
-                    <div class="music-title">
-                        标题标题标题标题标题标题标题标题标题
+                    <div class="music-title" @click="toPlayListPage(list)">
+                        {{ list.name }}
                     </div>
                 </div>
             </div>
             <div class="card-pagination">
-                <el-pagination background layout="prev, pager, next" :total="1000" />
+                <el-pagination background layout="prev, pager, next" :hide-on-single-page="true"
+                    :total="Math.floor(curLabelPlayList.length / 35)" />
             </div>
         </el-card>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useMusicStore } from '../../stores/music'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const musicStore = useMusicStore()
 
 const label = musicStore.selectLabel
+
+const isClose = ref(false)
+
+const all = '全部'
+const curLabel = ref(all)
+
+const allPlayList = musicStore.playList.filter(item => !item.belong_user && (item.id != 'privacyRadar'))
+
+const curLabelPlayList = ref(allPlayList)
+const curLabelPlayListCover = ref([])
+const initCover = () => {
+    curLabelPlayListCover.value = []
+
+    for (let i = 0; i < curLabelPlayList.value.length; i++) {
+        if (curLabelPlayList.value[i].cover) {
+            curLabelPlayListCover.value.push({
+                background: `url(${curLabelPlayList.value[i].cover})`,
+                backgroundSize: 'cover'
+            })
+        } else if (curLabelPlayList.value[i].audios?.length > 0 && curLabelPlayList.value[i].audios[0].audio?.cover) {
+            curLabelPlayListCover.value.push({
+                background: `url(${curLabelPlayList.value[i].audios[0].audio.cover})`,
+                backgroundSize: 'cover'
+            })
+        } else {
+            curLabelPlayListCover.value.push({
+                background: 'url(/public/cover/default-playlist-cover.jpg)',
+                backgroundSize: 'cover'
+            })
+        }
+    }
+}
+
+initCover()
+
+watch(curLabel, (newLabel) => {
+    if (curLabel.value == all) {
+        curLabelPlayList.value = allPlayList
+        initCover()
+        return
+    }
+
+    let newList = []
+
+    for (let i = 0; i < allPlayList.length; i++) {
+        if (allPlayList[i].label.includes(newLabel)) {
+            newList.push(allPlayList[i])
+        }
+    }
+    console.log(123);
+
+    curLabelPlayList.value = newList
+    initCover()
+})
+
+const selectTag = (tag) => {
+    curLabel.value = tag
+    isClose.value = false
+}
+
+const toPlayListPage = (list) => {
+    router.push({ name: 'list', params: { id: '=' + list.id } })
+}
+
 </script>
 
 <style lang="scss" scoped>

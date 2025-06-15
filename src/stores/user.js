@@ -24,7 +24,7 @@ export const useUserStore = defineStore('userInfo', () => {
         }
     ]
 
-    console.log(userInfo);
+    console.log('全部用户', userInfo);
 
     if (localStorage.getItem('userInfo')) {
         let JsonUserInfo = JSON.parse(localStorage.getItem('userInfo'))

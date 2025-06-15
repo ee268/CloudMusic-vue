@@ -82,6 +82,11 @@ const router = createRouter({
             ]
         },
         {
+            path: "/search/content=:text",
+            name: "search",
+            component: () => import("../pages/search.vue")
+        },
+        {
             path: "/my/:id",
             name: "my",
             meta: {

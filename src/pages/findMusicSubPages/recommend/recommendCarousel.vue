@@ -13,7 +13,12 @@
 
                 <el-carousel-item class="carouselImg" v-for="song in randSong" :key="song"
                     @click="toSingleSongPage(song)">
-                    <el-image :src="song.audio.cover" fit="cover" />
+                    <div :style="{
+                        width: '100%',
+                        height: '100%',
+                        background: `url(${song.audio.cover})`,
+                        backgroundSize: 'cover'
+                    }"></div>
                 </el-carousel-item>
             </el-carousel>
         </div>
@@ -115,12 +120,13 @@ const toSingleSongPage = (song) => {
         }
 
         .el-carousel__item {
-            opacity: 0.3;
+            // opacity: 0.3;
+            filter: blur(10px);
             cursor: pointer;
 
             &.is-animating {
-                transition: opacity 2s ease-in-out !important;
-                opacity: 1;
+                transition: filter 1s ease-in-out !important;
+                filter: blur(0px);
             }
         }
     }

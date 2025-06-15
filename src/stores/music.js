@@ -128,7 +128,7 @@ export const useMusicStore = defineStore('music', () => {
     }
 
     function addAudio(name, url) {
-        let cover_random = Math.floor(Math.random() * (12 - 1 + 1)) + 1
+        let cover_random = Math.floor(Math.random() * (40 - 1 + 1)) + 1
 
         for (let i = 0; i < audioList.value.length; i++) {
             if (audioList.value[i].url === url) {

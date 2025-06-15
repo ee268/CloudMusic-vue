@@ -9,16 +9,6 @@
                         </el-icon>
                     </div>
                     <div class="card-header-title">个性化推荐</div>
-                    <div class="more">
-                        <el-button>
-                            <el-text size="small">
-                                更多
-                                <el-icon color="#C20C0C">
-                                    <Right />
-                                </el-icon>
-                            </el-text>
-                        </el-button>
-                    </div>
                 </div>
             </template>
 
@@ -128,6 +118,8 @@ const getWeek = () => {
     }
 }
 
+
+
 </script>
 
 <style lang="scss" scoped>
@@ -154,7 +146,7 @@ const getWeek = () => {
     .card-header {
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: flex-start;
         gap: 15px;
 
         .card-header-icon {
@@ -167,37 +159,6 @@ const getWeek = () => {
             align-items: center;
             line-height: 1;
             font-size: 20px;
-        }
-
-        .more {
-            display: flex;
-            flex-direction: row;
-            margin-left: auto;
-            align-items: center;
-            gap: 5px;
-
-            .el-button {
-                background: none;
-                border: none;
-                padding: 0;
-                transition: all 0.3s ease-in-out;
-
-                .el-text {
-                    color: #C20C0C;
-                }
-
-                &:hover {
-                    .el-text {
-                        color: white;
-
-                        .el-icon {
-                            color: white;
-                        }
-                    }
-
-                    background: #C20C0C;
-                }
-            }
         }
     }
 

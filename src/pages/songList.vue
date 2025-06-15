@@ -71,6 +71,7 @@
                     <el-table :data="songListData" empty-text="暂无歌曲" stripe @cell-mouse-enter="rowEnterHover"
                         @cell-mouse-leave="rowLeaveHover">
                         <el-table-column type="index" width="30" />
+
                         <el-table-column width="50">
                             <template #default="scope">
                                 <el-button class="song-play-btn">
@@ -80,25 +81,30 @@
                                 </el-button>
                             </template>
                         </el-table-column>
+
                         <el-table-column prop="name" label="歌曲标题" width="340">
                             <template #default="scope">
                                 <div class="song-title" @click="toSingleSongPage(scope.row)">{{ scope.row.name }}</div>
                             </template>
                         </el-table-column>
+
                         <el-table-column prop="playTime" label="时长" width="100">
                             <template #default="scope">
                                 <span v-show="!isHoverRow[scope.row.index]">{{ scope.row.playTime }}</span>
+                                
                                 <span v-show="isHoverRow[scope.row.index]" style="margin-right: 5px;">
                                     <el-icon class="add-btn" size="20"
                                         @click="singleSongAddToPlayList(scope.row.index)">
                                         <Plus />
                                     </el-icon>
                                 </span>
+
                                 <span v-show="isHoverRow[scope.row.index]">
                                     <el-icon class="add-btn" size="20" @click="openCollectMusicBtn(scope.row)">
                                         <FolderAdd />
                                     </el-icon>
                                 </span>
+
                                 <span v-show="isHoverRow[scope.row.index]" @click="deleteSong(scope.row.index)">
                                     <el-icon class="add-btn" size="20">
                                         <Delete />
@@ -106,7 +112,9 @@
                                 </span>
                             </template>
                         </el-table-column>
+
                         <el-table-column prop="artist" label="歌手" widh="100" />
+
                         <el-table-column prop="belong_album" label="专辑" />
                     </el-table>
                 </div>
@@ -382,7 +390,7 @@ const play_playList = () => {
         musicStore.audio.list.add(audioData)
         musicStore.addCurPlayListActual(audioData)
     }
-    console.log(musicStore.curPlayListActual);
+    // console.log(musicStore.curPlayListActual);
 
     musicStore.audio.list.switch(0)
     setTimeout(() => {

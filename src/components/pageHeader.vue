@@ -10,7 +10,7 @@
             </div>
 
             <div class="search">
-                <el-input placeholder="音乐/专辑/歌手" v-model="searchContent">
+                <el-input placeholder="音乐/歌单/用户" v-model="searchContent" @keyup.enter="enterSearch">
                     <template #prefix>
                         <el-icon>
                             <search />
@@ -104,6 +104,7 @@ import { ref, onMounted } from 'vue'
 import { useCounterStore } from '../stores/login.js'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const isSign = ref(false)
 
@@ -175,6 +176,19 @@ const loginClick = () => {
 const logoutClick = () => {
     router.push({ name: 'find' })
     counter.logout()
+}
+
+const enterSearch = () => {
+    if (searchContent.value == '') {
+        ElMessage.warning('请输入搜索内容')
+        return
+    }
+
+    let content = searchContent.value
+
+    searchContent.value = ''
+
+    router.push({ name: 'search', params: { text: content } })
 }
 
 </script>

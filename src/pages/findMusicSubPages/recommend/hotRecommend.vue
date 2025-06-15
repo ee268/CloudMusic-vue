@@ -32,7 +32,7 @@
             </template>
             <div class="card-music">
                 <div v-for="(list, i) in displayPlayList" :key="i">
-                    <div class="music-cover" :style="songListCover[i]">
+                    <div @click="toPlayListPage(i)" class="music-cover" :style="songListCover[i]">
                         <div class="play-info">
                             <div class="play-button">
                                 <el-button>
@@ -51,7 +51,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="music-title">
+                    <div @click="toPlayListPage(i)" class="music-title">
                         {{ list.name }}
                     </div>
                 </div>
@@ -102,6 +102,10 @@ for (let i = 0; i < 8; i++) {
             backgroundSize: 'cover'
         })
     }
+}
+
+const toPlayListPage = (index) => {
+    router.push({ name: 'list', params: { id: '=' + displayPlayList.value[index].id } })
 }
 
 </script>

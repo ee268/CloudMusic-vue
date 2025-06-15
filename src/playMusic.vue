@@ -37,8 +37,8 @@
             </div>
             <div class="music-text-progress">
                 <div class="music-text">
-                    <div>{{ curPlayListActual[curPlayIndex].name }}</div>
-                    <div>{{ curPlayListActual[curPlayIndex].artist }}</div>
+                    <div>{{ curPlayListActual.length > curPlayIndex ? curPlayListActual[curPlayIndex].name : '' }}</div>
+                    <div>{{ curPlayListActual.length > curPlayIndex ? curPlayListActual[curPlayIndex].artist : '' }}</div>
                 </div>
                 <div class="music-progress">
                     <div class="progress">
@@ -511,6 +511,8 @@ const nextMusic = () => {
 }
 
 .playListDropdown {
+    height: 350px;
+    overflow-y: scroll;
 
     .el-dropdown-menu {
         background: #2B2B2B !important;

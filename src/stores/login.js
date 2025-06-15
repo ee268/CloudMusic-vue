@@ -131,6 +131,7 @@ export const useCounterStore = defineStore('counter', () => {
     const logout = () => {
         account.value = password.value = ''
         isLogin.value = false
+        localStorage.setItem('isLogin', false)
     }
 
     return {

@@ -14,29 +14,16 @@
                                         </el-button>
                                     </div>
                                     <div class="classify-body">
-                                        <div class="classify-item">
+                                        <div class="classify-item" v-for="(item, index) in label" :key="index">
                                             <div class="classify-name">
                                                 <el-icon size="27" color="#9D9D9D">
                                                     <Comment />
                                                 </el-icon>
-                                                语种
+                                                {{ item.type }}
                                             </div>
                                             <div class="classify-sub-name">
-                                                <div class="item" v-for="item in 7" :key="item">
-                                                    <el-button>华语</el-button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="classify-item">
-                                            <div class="classify-name">
-                                                <el-icon size="27" color="#9D9D9D">
-                                                    <VideoCamera />
-                                                </el-icon>
-                                                风格
-                                            </div>
-                                            <div class="classify-sub-name">
-                                                <div class="item" v-for="item in 15" :key="item">
-                                                    <el-button>流行</el-button>
+                                                <div class="item" v-for="tag in item.label" :key="tag">
+                                                    <el-button>{{ tag }}</el-button>
                                                 </div>
                                             </div>
                                         </div>
@@ -95,7 +82,12 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useMusicStore } from '../../stores/music'
 
+const musicStore = useMusicStore()
+
+const label = musicStore.selectLabel
 </script>
 
 <style lang="scss" scoped>
@@ -368,10 +360,11 @@
                 display: grid;
                 grid-template-columns: repeat(10, 1fr);
                 align-content: center;
-                padding: 15px;
-                row-gap: 15px;
+                padding: 5px;
+                row-gap: 5px;
 
                 .item {
+                    width: 80px;
                     text-align: center;
                     box-sizing: border-box;
                     border-right: 1px solid #E6E6E6;

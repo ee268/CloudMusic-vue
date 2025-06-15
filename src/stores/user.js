@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ElMessage } from "element-plus"
 
 export const useUserStore = defineStore('userInfo', () => {
     const userInfo = [
@@ -18,15 +19,15 @@ export const useUserStore = defineStore('userInfo', () => {
             collect_playlist: [],
             acc_id: '0000000000'
         }
-    ]    
+    ]
 
     console.log(userInfo);
-    
+
 
     if (localStorage.getItem('userInfo')) {
         let JsonUserInfo = JSON.parse(localStorage.getItem('userInfo'))
-        
-        for (let i = 0; i < userInfo.length; i++){
+
+        for (let i = 0; i < userInfo.length; i++) {
             userInfo[i] = JsonUserInfo[i]
         }
 
@@ -65,13 +66,30 @@ export const useUserStore = defineStore('userInfo', () => {
         localStorage.setItem('userInfo', JSON.stringify(userInfo))
     }
 
-    const updateCollectPlayList = (userId, playListId) => { 
+    const updateCollectPlayList = (userId, playListId) => {
         for (let i = 0; i < userInfo.length; i++) {
             if (userInfo[i].acc_id === userId) {
+                let isExist = userInfo[i].collect_playlist.find(item => item == playListId)
+
+                if (isExist) {
+                    ElMessage({
+                        showClose: true,
+                        message: '已经收藏过了',
+                        type: 'warning',
+                        plain: true,
+                        duration: 2500
+                    })
+
+                    return false
+                }
+
                 userInfo[i].collect_playlist.push(playListId)
+                break
             }
         }
+        
         localStorage.setItem('userInfo', JSON.stringify(userInfo))
+        return true
     }
 
     return { userInfo, getUser, addUser, getUserId, updateUserInfo, updateCreatePlayList, updateCollectPlayList }

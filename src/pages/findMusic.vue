@@ -28,7 +28,7 @@ const { setSubMenuRef } = storeToRefs(Menu)
 const router = useRouter()
 
 router.beforeEach((to, from, next) => {
-    if (to.fullPath.indexOf('recommend') != -1) {
+    if (to.fullPath.indexOf('recommend') != -1 && to.fullPath.indexOf('Artist') == -1) {
         Menu.subMenuRef.updateActiveIndex(0)
     }
     else if (to.fullPath.indexOf('playList') != -1) {

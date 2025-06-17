@@ -22,7 +22,9 @@
 
                         <div class="songList-creator-info">
                             <div class="creator-avatar"></div>
-                            <div class="creator-name">{{ userStore.getUserId(songList.creator_id).name }}</div>
+                            <div class="creator-name"
+                                @click="toUserPage(userStore.getUserId(songList.creator_id).acc_id)">{{
+                                    userStore.getUserId(songList.creator_id).name }}</div>
                             <div class="creator-time">{{ songList.create_time }}创建</div>
                         </div>
 
@@ -105,7 +107,7 @@
                                     </el-icon>
                                 </span>
 
-                                <span v-show="isHoverRow[scope.row.index]" @click="deleteSong(scope.row.index)">
+                                <span v-show="isHoverRowDelete[scope.row.index]" @click="deleteSong(scope.row.index)">
                                     <el-icon class="add-btn" size="20">
                                         <Delete />
                                     </el-icon>
@@ -137,6 +139,7 @@ import { useMenuStore } from '../stores/menu'
 import { ElMessage } from 'element-plus'
 
 const isHoverRow = ref([])
+const isHoverRowDelete = ref([])
 
 const menuStore = useMenuStore()
 menuStore.menuRef.updateActiveIndex("3")
@@ -255,6 +258,7 @@ const loadSongs = async () => {
 
         // console.log('最终songListData:', songListData.value) // 确认结果
         isHoverRow.value = new Array(songListData.value.length).fill(false)
+        isHoverRowDelete.value = new Array(songListData.value.length).fill(false)
 
     } catch (error) {
         console.error('加载歌曲失败:', error)
@@ -265,10 +269,18 @@ const loadSongs = async () => {
 loadSongs()
 
 const rowEnterHover = (row, col, cell, event) => {
+    if (isOwnPlayList.value) {
+        isHoverRowDelete.value[row.index] = true
+    }
+
     isHoverRow.value[row.index] = true
 }
 
 const rowLeaveHover = (row) => {
+    if (isOwnPlayList.value) {
+        isHoverRowDelete.value[row.index] = false
+    }
+
     isHoverRow.value[row.index] = false
 }
 
@@ -294,12 +306,27 @@ const singleSongPlayBtn = (index) => {
         }
     }
 
+    musicStore.addCurPlayListActual({
+        name: song.name,
+        artist: song.artist,
+        cover: song.cover,
+        url: song.url
+    })
+
     musicStore.audio.list.add({
         name: song.name,
         artist: song.artist,
         cover: song.cover,
         url: song.url
     })
+
+    musicStore.audio.list.switch(musicStore.audio.list.audios.length - 1)
+
+    setTimeout(() => {
+        musicStore.audio.play()
+    }, 500)
+
+    musicStore.isPlaying = true
 
     ElMessage({
         showClose: true,
@@ -331,6 +358,13 @@ const singleSongAddToPlayList = (index) => {
             return
         }
     }
+
+    musicStore.addCurPlayListActual({
+        name: song.name,
+        artist: song.artist,
+        cover: song.cover,
+        url: song.url
+    })
 
     musicStore.audio.list.add({
         name: song.name,
@@ -494,6 +528,22 @@ const openCollectMusicBtn = (row) => {
 
 const closeCollectDialog = () => {
     isOpenCollectDialog.value = false
+}
+
+const toUserPage = (id) => {
+    
+    if (isOwnPlayList.value) {
+        router.push({
+            name: 'my',
+            params: { id: 'id=' + id }
+        })
+        return
+    }
+
+    router.push({
+        name: 'alterUser',
+        params: { id: id }
+    })
 }
 </script>
 

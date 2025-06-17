@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ElMessage } from "element-plus"
 import { useMusicStore } from './music'
+import { Logger } from 'sass'
 
 export const useUserStore = defineStore('userInfo', () => {
     const musicStore = useMusicStore()
@@ -102,12 +103,12 @@ export const useUserStore = defineStore('userInfo', () => {
                 break
             }
         }
-        
+
         localStorage.setItem('userInfo', JSON.stringify(userInfo))
         return true
     }
 
-    const removeCollectPlayList = (userId, playListId) => { 
+    const removeCollectPlayList = (userId, playListId) => {
         for (let i = 0; i < userInfo.length; i++) {
             if (userInfo[i].acc_id == userId) {
                 for (let j = 0; j < userInfo[i].collect_playlist.length; j++) {
@@ -117,7 +118,75 @@ export const useUserStore = defineStore('userInfo', () => {
                 }
             }
         }
+        localStorage.setItem('userInfo', JSON.stringify(userInfo))
     }
 
-    return { userInfo, getUser, addUser, getUserId, updateUserInfo, updateCreatePlayList, updateCollectPlayList, removeCollectPlayList }
+    const addFollow = (userId, followUserId) => {
+        // console.log(userId, followUserId);
+
+        for (let i = 0; i < userInfo.length; i++) {
+            if (userInfo[i].acc_id == userId) {
+
+                userInfo[i].follow.push(followUserId)
+                userInfo[i].follow_cnt = userInfo[i].follow_cnt + 1
+                break
+            }
+        }
+
+        for (let i = 0; i < userInfo.length; i++) {
+            if (userInfo[i].acc_id == followUserId) {
+
+                userInfo[i].follower.push(userId)
+                userInfo[i].follower_cnt = userInfo[i].follower_cnt + 1
+                break
+            }
+        }
+
+        localStorage.setItem('userInfo', JSON.stringify(userInfo))
+    }
+
+    const removeFollow = (userId, followUserId) => {
+        for (let i = 0; i < userInfo.length; i++) {
+            if (userInfo[i].acc_id == userId) {
+                for (let j = 0; j < userInfo[i].follow.length; j++) {
+                    if (userInfo[i].follow[j] == followUserId) {
+                        userInfo[i].follow.splice(j, 1)
+                        break
+                    }
+                }
+
+                userInfo[i].follow_cnt = userInfo[i].follow_cnt - 1
+                break
+            }
+        }
+
+        for (let i = 0; i < userInfo.length; i++) {
+            if (userInfo[i].acc_id == followUserId) {
+                for (let j = 0; j < userInfo[i].follower.length; j++) {
+                    if (userInfo[i].follower[j] == userId) {
+                        userInfo[i].follower.splice(j, 1)
+                        break
+                    }
+                }
+
+                userInfo[i].follower_cnt = userInfo[i].follower_cnt - 1
+                break
+            }
+        }
+
+        localStorage.setItem('userInfo', JSON.stringify(userInfo))
+    }
+
+    return {
+        userInfo,
+        getUser,
+        addUser,
+        getUserId,
+        updateUserInfo,
+        updateCreatePlayList,
+        updateCollectPlayList,
+        removeCollectPlayList,
+        addFollow,
+        removeFollow,
+    }
 })

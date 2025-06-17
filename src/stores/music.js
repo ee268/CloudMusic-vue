@@ -153,6 +153,7 @@ export const useMusicStore = defineStore('music', () => {
 
         audioInfo.push({
             id: Math.random().toString().substring(4, 12),
+            creator_id: localStorage.getItem('acc_id'),
             audio: audioList.value[audioList.value.length - 1],
         })
 

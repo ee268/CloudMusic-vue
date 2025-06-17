@@ -96,6 +96,12 @@ const router = createRouter({
             component: () => import("../pages/myMusic.vue"),
         },
         {
+            path: "/alterUser_id=:id",
+            name: "alterUser",
+            component: () => import("../pages/artitstMusic.vue"),
+            props: true
+        },
+        {
             path: "/upload",
             name: "upload",
             meta: {

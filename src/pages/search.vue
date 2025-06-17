@@ -350,7 +350,7 @@ const play_playList = (index) => {
 }
 
 const toUserPage = (index) => {
-
+    router.push({ name: 'alterUser', params: { id: user_result.value[index].acc_id } })
 }
 
 const setCollectAudio = ref()

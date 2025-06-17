@@ -10,12 +10,9 @@
 
                     <div class="user-data">
                         <div class="user-name">
-                            <div class="user-name-btn">
-                                {{ userInfo.name }}
-                                <el-button v-show="isExistOwnAudio" type="primary" color="#C20C0C"
-                                    @click="toArtistPage(userInfo.acc_id)">查看歌手页</el-button>
-                            </div>
-                            <el-button @click="editUserInfo">编辑个人资料</el-button>
+                            {{ userInfo.name }}
+                            <el-button v-show="!isOwner" type="primary" color="#C20C0C" @click="addFollow">{{ isFollow
+                                }}</el-button>
                         </div>
                         <div class="user-cnt">
                             <div @click="showFollow">
@@ -34,8 +31,7 @@
 
                         <div class="user-area-age">
                             <div>所在地区：{{ userInfo.area[1] }}</div>
-                            <div>年龄：{{ userInfo.birthday[0].toString().substring(2) }}{{ userInfo.birthday[0] ? '后' : ''
-                            }}</div>
+                            <div>年龄：{{ userInfo.birthday[0].toString().substring(2) }}后</div>
                         </div>
                     </div>
                 </div>
@@ -44,13 +40,57 @@
             <el-card v-show="showCnt">
                 <template #header>
                     <div class="card-header">
-                        <div class="card-header-title">我创建的歌单{{ '(' + userInfo.create_playlist.length + ')' }}</div>
+                        <div class="card-header-title">个人单曲{{ '(' + personSongList_info.length + ')' }}</div>
+                    </div>
+                </template>
 
-                        <div class="hot">
-                            <el-button @click="createPlayList">
-                                创建歌单
-                            </el-button>
-                        </div>
+                <div class="songList-songs">
+                    <el-table :data="personSongList_info" empty-text="暂无歌曲" max-height="400" stripe
+                        @cell-mouse-enter="rowEnterHover" @cell-mouse-leave="rowLeaveHover">
+                        <el-table-column type="index" />
+
+                        <el-table-column width="50">
+                            <template #default="scope">
+                                <el-button class="song-play-btn">
+                                    <el-icon size="20" @click="singleSongPlayBtn(scope.row.index)">
+                                        <VideoPlay />
+                                    </el-icon>
+                                </el-button>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="name" label="歌曲标题">
+                            <template #default="scope">
+                                <div class="song-title" @click="toSingleSongPage(scope.row)">{{ scope.row.name }}</div>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="playTime" label="时长" width="100">
+                            <template #default="scope">
+                                <span v-show="!isHoverRow[scope.row.index]">{{ scope.row.playTime }}</span>
+
+                                <span v-show="isHoverRow[scope.row.index]" style="margin-right: 5px;">
+                                    <el-icon class="add-btn" size="20"
+                                        @click="singleSongAddToPlayList(scope.row.index)">
+                                        <Plus />
+                                    </el-icon>
+                                </span>
+
+                                <span v-show="isHoverRow[scope.row.index]">
+                                    <el-icon class="add-btn" size="20" @click="openCollectMusicBtn(scope.row)">
+                                        <FolderAdd />
+                                    </el-icon>
+                                </span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
+
+            <el-card v-show="showCnt && !isOwner">
+                <template #header>
+                    <div class="card-header">
+                        <div class="card-header-title">创建的歌单{{ '(' + userInfo.create_playlist.length + ')' }}</div>
                     </div>
                 </template>
                 <div class="card-music">
@@ -82,10 +122,10 @@
                 </div>
             </el-card>
 
-            <el-card v-show="showCnt">
+            <el-card v-show="showCnt && !isOwner">
                 <template #header>
                     <div class="card-header">
-                        <div class="card-header-title">我收藏的歌单{{ '(' + userInfo.collect_playlist.length + ')' }}</div>
+                        <div class="card-header-title">收藏的歌单{{ '(' + userInfo.collect_playlist.length + ')' }}</div>
                     </div>
                 </template>
                 <div class="card-music">
@@ -156,84 +196,24 @@
             </el-card>
         </div>
 
-        <el-dialog v-model="openCreatePlayList" title="创建歌单" width="500" align-center>
-            <div class="label-dialog">
-                <el-dialog v-model="openSelectLabel" title="选择标签" align-center>
-                    <div class="label-content">
-                        <div>选择合适的标签，最多可选3个</div>
-                        <div class="label-type" v-for="(item, row) in selectLabel" :key="row">
-                            <div>{{ item.type }}：</div>
-                            <div class="label-grid-container">
-                                <div class="label-grid">
-                                    <el-button v-for="(label, col) in item.label" :key="col" class="label-btn"
-                                        @click="clickLabel(row, col, label)"
-                                        :class="{ 'active': selectedLabel_btn[row][col] }">
-                                        {{ label }}
-                                    </el-button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <template #footer>
-                        <div style="text-align: center; border-top: 1px solid #999; padding: 16px 0 0 0;">
-                            <el-button type="primary" @click="openSelectLabel = false">
-                                保存并关闭
-                            </el-button>
-                        </div>
-                    </template>
-                </el-dialog>
-            </div>
-
-            <div class="dialog-content">
-                <div class="playlist-content">
-                    <div class="playlist-title">
-                        <div>歌单名：</div>
-                        <el-input v-model="playListName" maxlength="20"></el-input>
-                    </div>
-                    <div class="playlist-label">
-                        <div>标签：</div>
-                        <div>
-                            <div @click="openSelectLabel = true">选择标签</div>
-                            <div>
-                                <el-tag v-for="label in seletedLabel" :key="label" @close="deleteLabel(label)"
-                                    :closable="true" type="info">{{ label[0] }}</el-tag>
-                            </div>
-                            <div>选择适合的标签，最多选3个</div>
-                        </div>
-                    </div>
-                    <div class="playlist-introduce">
-                        <div>介绍：</div>
-                        <el-input v-model="playListIntro" maxlength="1000" show-word-limit type="textarea"
-                            :autosize="{ minRows: 8, maxRows: 8 }" />
-                    </div>
-                </div>
-                <div class="playlist-cover">
-                    <div class="edit-cover">
-                        <div>编辑封面</div>
-                    </div>
-                </div>
-            </div>
-            <template #footer>
-                <div>
-                    <el-button @click="createPlayList('close')">取消</el-button>
-                    <el-button type="primary" @click="createPlayList('correct')">
-                        确认
-                    </el-button>
-                </div>
-            </template>
-        </el-dialog>
+        <collectDialog :openCollectDialog="isOpenCollectDialog" :CloseEvent="closeCollectDialog"
+            :collectAudio="setCollectAudio"></collectDialog>
     </div>
 </template>
 
 <script setup>
 import pageHeaderSubMenu from '@/components/pageHeaderSubMenu.vue'
+import collectDialog from './collectDialog.vue'
 import { useUserStore } from '../stores/user'
 import { useMusicStore } from '../stores/music'
+import { useMenuStore } from '../stores/menu'
 import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+
+const menuStore = useMenuStore()
+menuStore.menuRef.updateActiveIndex("3")
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -242,76 +222,76 @@ const showArticleCnt = ref(false)
 const showFollowCnt = ref(false)
 const showFollowerCnt = ref(false)
 
-const openCreatePlayList = ref(false)
-const openSelectLabel = ref(false)
+const isHoverRow = ref([])
 
-const userInfo = ref(userStore.getUserId(localStorage.getItem('acc_id')))
-// console.log(userInfo.value)
+const curUserId = ref(router.currentRoute.value.params.id)
+
+const userInfo = ref(userStore.getUserId(curUserId.value))
+const isOwner = ref(curUserId.value == localStorage.getItem("acc_id"))
+
+const isFollow = ref('关注')
+if (userInfo.value.follower) {
+    for (let i = 0; i < userInfo.value.follower.length; i++) {
+        if (userInfo.value.follower[i] == localStorage.getItem("acc_id")) {
+            isFollow.value = '取消关注'
+            break
+        }
+    }
+}
 
 const musicStore = useMusicStore()
 const { playList } = storeToRefs(musicStore)
 
-const isExistOwnAudio = ref(false)
-for (let i = 0; i < musicStore.audioInfo.length; i++) {
-    if (musicStore.audioInfo[i].creator_id == userInfo.value.acc_id) {
-        isExistOwnAudio.value = true
-        break
-    }
-}
-
 const collectPlayList = ref([])
 for (let i = 0; i < userInfo.value.collect_playlist.length; i++) {
     let list = musicStore.getPlayListId(userInfo.value.collect_playlist[i])
+
     if (list) {
         collectPlayList.value.push(list)
     }
 }
-
-const selectLabel = musicStore.selectLabel
-
-const playListName = ref('')
-const playListIntro = ref('')
 
 const playList_info = ref([])
 for (let i = 0; i < userInfo.value.create_playlist.length; i++) {
     playList_info.value.push(musicStore.getPlayListId(userInfo.value.create_playlist[i]))
 }
 
-let seletedLabel = ref([])
-const selectedLabel_btn = ref([])
-for (let i = 0; i < selectLabel.length; i++) {
-    selectedLabel_btn.value.push([])
-    for (let j = 0; j < selectLabel[i].label.length; j++) {
-        selectedLabel_btn.value[i].push(false)
-    }
-}
-let selectedLabelCnt = 0
+const personSongList = ref([])
 
-const clickLabel = (row, col, label) => {
-    if (selectedLabel_btn.value[row][col]) {
-        selectedLabel_btn.value[row][col] = !selectedLabel_btn.value[row][col]
-        seletedLabel.value.pop()
-        selectedLabelCnt--
+const personSongList_info = ref([])
 
-        return
+const initPersonSongList = () => {
+    personSongList.value = []
+    personSongList_info.value = []
+
+    for (let i = 0; i < musicStore.audioInfo.length; i++) {
+        if (musicStore.audioInfo[i].creator_id == curUserId.value) {
+            personSongList.value.push(musicStore.audioInfo[i])
+        }
     }
 
-    if (selectedLabelCnt == 3) {
-        ElMessage.error('标签最多不能超过3个')
+    for (let i = 0; i < personSongList.value.length; i++) {
+        let ad = {
+            id: personSongList.value[i].id,
+            name: personSongList.value[i].audio.name,
+            artist: personSongList.value[i].audio.artist,
+            cover: personSongList.value[i].audio.cover,
+            url: personSongList.value[i].audio.url,
+            creator_id: personSongList.value[i].creator_id,
+            index: i
+        }
+        personSongList_info.value.push(ad)
 
-        return
+        let au = new Audio(personSongList.value[i].audio.url);
+        au.addEventListener('loadedmetadata', function () {
+            personSongList_info.value[i].playTime = (Math.floor(au.duration / 60).toString().padStart(2, '0') + ':' + Math.floor(au.duration % 60).toString().padStart(2, '0'))
+        })
     }
 
-    selectedLabel_btn.value[row][col] = !selectedLabel_btn.value[row][col]
-    seletedLabel.value.push([label, [row, col]])
-    selectedLabelCnt++
+    isHoverRow.value = new Array(personSongList_info.value.length).fill(false)
 }
 
-const deleteLabel = (label) => {
-    selectedLabel_btn.value[label[1][0]][label[1][1]] = false
-    seletedLabel.value.pop()
-    selectedLabelCnt--
-}
+initPersonSongList()
 
 //获取当前日期函数
 function getNowFormatDate() {
@@ -323,53 +303,6 @@ function getNowFormatDate() {
     if (strDate < 10) strDate = `0${strDate}` // 如果日是个位数，在前面补0
 
     return `${year}-${month}-${strDate}`
-}
-
-const createPlayList = (signal) => {
-    if (signal == 'correct') {
-        if (playListName.value == '') {
-            ElMessage.error('歌单名不能为空')
-            return
-        }
-
-        let playListLabel = []
-        for (let i = 0; i < seletedLabel.value.length; i++) {
-            playListLabel.push(seletedLabel.value[i][0])
-        }
-
-        let playList_id = Math.random().toString().substring(5, 12)
-
-        while (musicStore.getPlayListId(playList_id)) {
-            playList_id = Math.random().toString().substring(5, 12)
-        }
-
-        musicStore.addPlayList({
-            name: playListName.value,
-            id: playList_id,
-            cover: '',
-            creator_id: localStorage.getItem('acc_id'),
-            intro: playListIntro.value,
-            label: playListLabel,
-            create_time: getNowFormatDate(),
-            audios: []
-        })
-
-        userStore.updateCreatePlayList(userInfo.value.acc_id, playList_id)
-        localStorage.setItem('userInfo', JSON.stringify(userStore.userInfo))
-
-        console.log(musicStore.playList);
-    }
-    else if (signal == 'close') {
-        playListName.value = playListIntro.value = ''
-        selectedLabelCnt = 0
-        for (let i = 0; i < selectedLabel_btn.value.length; i++) {
-            for (let j = 0; j < selectedLabel_btn.value[i].length; j++) {
-                selectedLabel_btn.value[i] = false
-            }
-        }
-    }
-
-    openCreatePlayList.value = !openCreatePlayList.value
 }
 
 const toPlayListPage = (id) => {
@@ -394,11 +327,6 @@ const showPlayList = () => {
     showCnt.value = true
 }
 
-const showArticle = () => {
-    showCnt.value = showFollowCnt.value = showFollowerCnt.value = false
-    showArticleCnt.value = true
-}
-
 const showFollow = () => {
     showCnt.value = showArticleCnt.value = showFollowerCnt.value = false
     showFollowCnt.value = true
@@ -409,10 +337,6 @@ const showFollower = () => {
     showFollowerCnt.value = true
 }
 
-const editUserInfo = () => {
-    router.push({ name: 'userConfig' })
-}
-
 const getPlaylistCover = (list) => {
     if (!list.audios?.length || !list.audios[0]?.audio?.cover) {
         return 'url(/public/cover/default-playlist-cover.jpg)'
@@ -420,8 +344,132 @@ const getPlaylistCover = (list) => {
     return `url(${list.audios[0].audio.cover})`
 }
 
-const toArtistPage = (id) => {
-    router.push({ name: 'alterUser', params: { id: id } })
+const setCollectAudio = ref()
+
+const isOpenCollectDialog = ref(false)
+
+const openCollectMusicBtn = (row) => {
+    isOpenCollectDialog.value = true
+    setCollectAudio.value = musicStore.getAudioInfo(row.id)
+}
+
+const closeCollectDialog = () => {
+    isOpenCollectDialog.value = false
+}
+
+const rowEnterHover = (row, col, cell, event) => {
+    isHoverRow.value[row.index] = true
+}
+
+const rowLeaveHover = (row) => {
+    isHoverRow.value[row.index] = false
+}
+
+const singleSongPlayBtn = (index) => {
+    let song = personSongList.value[index].audio
+
+    for (let i = 0; i < musicStore.audio.list.audios.length; i++) {
+        if (song.url == musicStore.audio.list.audios[i].url) {
+
+            musicStore.audio.list.switch(i)
+
+            setTimeout(() => {
+                musicStore.audio.play()
+            }, 500)
+
+            musicStore.isPlaying = true
+
+            ElMessage({
+                showClose: true,
+                message: '开始播放',
+                type: 'info',
+                plain: true,
+                duration: 2500
+            })
+
+            return
+        }
+    }
+
+    musicStore.addCurPlayListActual(song)
+
+    musicStore.audio.list.add(song)
+
+    musicStore.audio.list.switch(musicStore.audio.list.audios.length - 1)
+
+    setTimeout(() => {
+        musicStore.audio.play()
+    }, 500)
+
+    musicStore.isPlaying = true
+
+    console.log(song);
+
+    ElMessage({
+        showClose: true,
+        message: '开始播放',
+        type: 'info',
+        plain: true,
+        duration: 2500
+    })
+}
+
+const toSingleSongPage = (row) => {
+    router.push({
+        name: 'song',
+        params: { id: '=' + row.id }
+    })
+}
+
+const singleSongAddToPlayList = (index) => {
+    let song = personSongList.value[index].audio
+
+    for (let i = 0; i < musicStore.audio.list.audios.length; i++) {
+        if (song.url == musicStore.audio.list.audios[i].url) {
+
+            musicStore.audio.list.switch(i)
+
+            setTimeout(() => {
+                musicStore.audio.pause()
+            }, 500)
+
+            musicStore.isPlaying = false
+
+            ElMessage({
+                showClose: true,
+                message: '已添加到播放列表',
+                type: 'info',
+                plain: true,
+                duration: 2500
+            })
+
+            return
+        }
+    }
+
+    musicStore.addCurPlayListActual(song)
+
+    musicStore.audio.list.add(song)
+
+    ElMessage({
+        showClose: true,
+        message: '已添加到播放列表',
+        type: 'info',
+        plain: true,
+        duration: 2500
+    })
+}
+
+const addFollow = () => {
+
+    if (isFollow.value == '取消关注') {
+        isFollow.value = '关注'
+        userStore.removeFollow(localStorage.getItem('acc_id'), userInfo.value.acc_id)
+        return
+    }
+
+    userStore.addFollow(localStorage.getItem('acc_id'), userInfo.value.acc_id)
+    isFollow.value = '取消关注'
 }
 
 const getUserAvatar = (user) => {
@@ -433,6 +481,18 @@ const getUserAvatar = (user) => {
         background: `url(${user.avatar})`,
         backgroundSize: 'cover',
     }
+}
+
+const toArtistPage = (id) => {
+    console.log(userInfo.value.follower.length)
+    console.log(userInfo.value.follower)
+    curUserId.value = id
+    userInfo.value = userStore.getUserId(id)
+    isOwner.value = curUserId.value == localStorage.getItem("acc_id")
+    showPlayList()
+    initPersonSongList()
+
+    router.push({ name: 'alterUser', params: { id: id } })
 }
 </script>
 
@@ -647,20 +707,13 @@ const getUserAvatar = (user) => {
             .user-name {
                 display: flex;
                 flex-direction: row;
-                justify-content: space-between;
+                justify-content: flex-start;
                 align-items: center;
+                gap: 20px;
                 border-bottom: 1px solid #D1D0D0;
                 padding-bottom: 15px;
                 margin-bottom: 15px;
                 font-size: 25px;
-
-                .user-name-btn {
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: center;
-                    align-items: center;
-                    gap: 20px;
-                }
             }
 
             .user-cnt {
@@ -721,6 +774,47 @@ const getUserAvatar = (user) => {
                 &>div {
                     color: #666666;
                     font-size: 13px;
+                }
+            }
+        }
+    }
+
+    .songList-songs {
+        width: 100%;
+
+        .el-table {
+            border: 1px solid #D9D9D9;
+            border-top: 0;
+            box-sizing: border-box;
+
+            .song-title {
+                cursor: pointer;
+
+                &:hover {
+                    text-decoration-line: underline;
+                }
+            }
+
+            .btn {
+                background: #000;
+            }
+
+            .song-play-btn {
+                padding: 0;
+                width: 100%;
+                border: none;
+                background: transparent;
+
+                &:hover {
+                    color: #C20C0C;
+                }
+            }
+
+            .add-btn {
+                cursor: pointer;
+
+                &:hover {
+                    color: #C20C0C;
                 }
             }
         }

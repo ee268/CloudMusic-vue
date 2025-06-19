@@ -9,7 +9,7 @@
                     <div>
                         单曲
                     </div>
-                    {{ musicInfo.name }}
+                    {{ musicInfo.audio.name }}
                 </template>
 
                 <div class="song-cover">
@@ -22,14 +22,8 @@
                 <div class="song-info">
                     <div class="singer">
                         歌手：
-                        <div class="singer singer-name">
-                            {{ musicInfo.artist }}
-                        </div>
-                    </div>
-                    <div class="album">
-                        所属专辑：
-                        <div class="album album-name">
-                            {{ '无' }}
+                        <div class="singer singer-name" @click="toSingerPage(musicInfo.creator_id)">
+                            {{ musicInfo.creator_name }}
                         </div>
                     </div>
 
@@ -82,20 +76,20 @@ const router = useRouter()
 
 const musicStore = useMusicStore()
 
-const musicInfo = ref(musicStore.getAudioInfo(router.currentRoute.value.params.id.substring(1)).audio)
+const musicInfo = ref(musicStore.getAudioInfo(router.currentRoute.value.params.id.substring(1)))
 const cover = ref({})
 
 router.beforeEach((to, from, next) => {
     if (to.fullPath.indexOf('song') != -1) {
         musicInfo.value = musicStore.getAudioInfo(to.params.id.substring(1))
-        musicInfo.value = musicInfo.value.audio
-        cover.value = musicInfo.value.cover
+        musicInfo.value = musicInfo.value
+        cover.value = musicInfo.value.audio.cover
 
         if (!cover.value) {
             cover.value = {}
         }
         else {
-            cover.value = { background: 'url(' + musicInfo.value.cover + ')', backgroundSize: 'cover' }
+            cover.value = { background: 'url(' + musicInfo.value.audio.cover + ')', backgroundSize: 'cover' }
         }
     }
     next()
@@ -104,14 +98,14 @@ router.beforeEach((to, from, next) => {
 onMounted(() => {
     if (router.currentRoute.value.fullPath.indexOf('song') != -1) {
         musicInfo.value = musicStore.getAudioInfo(router.currentRoute.value.params.id.substring(1))
-        musicInfo.value = musicInfo.value.audio
-        cover.value = musicInfo.value.cover
+        musicInfo.value = musicInfo.value
+        cover.value = musicInfo.value.audio.cover
 
         if (!cover.value) {
             cover.value = {}
         }
         else {
-            cover.value = { background: 'url(' + musicInfo.value.cover + ')', backgroundSize: 'cover' }
+            cover.value = { background: 'url(' + musicInfo.value.audio.cover + ')', backgroundSize: 'cover' }
         }
     }
 })
@@ -135,10 +129,10 @@ function judgeAudioEqually() {
     let curAudioList = musicStore.audio.list.audios
 
     for (let i = 0; i < curAudioList.length; i++) {
-        if (curAudioList[i].name == musicInfo.value.name &&
-            curAudioList[i].artist == musicInfo.value.artist &&
-            curAudioList[i].cover == musicInfo.value.cover &&
-            curAudioList[i].url == musicInfo.value.url) {
+        if (curAudioList[i].name == musicInfo.value.audio.name &&
+            curAudioList[i].artist == musicInfo.value.audio.artist &&
+            curAudioList[i].cover == musicInfo.value.audio.cover &&
+            curAudioList[i].url == musicInfo.value.audio.url) {
 
             return i
         }
@@ -168,8 +162,8 @@ const addToAudioList = () => {
         return
     }
 
-    musicStore.addCurPlayListActual(musicInfo.value)
-    musicStore.audio.list.add(musicInfo.value)
+    musicStore.addCurPlayListActual(musicInfo.value.audio)
+    musicStore.audio.list.add(musicInfo.value.audio)
 
     ElMessage({
         showClose: true,
@@ -192,8 +186,8 @@ const playMusic = () => {
         musicStore.isPlaying = true
     }
     else {
-        musicStore.addCurPlayListActual(musicInfo.value)
-        musicStore.audio.list.add(musicInfo.value)
+        musicStore.addCurPlayListActual(musicInfo.value.audio)
+        musicStore.audio.list.add(musicInfo.value.audio)
 
         musicStore.audio.list.switch(musicStore.audio.list.audios.length - 1)
 
@@ -223,6 +217,12 @@ const closeCollectDialog = () => {
     isOpenCollectDialog.value = false
 }
 
+const toSingerPage = (id) => {
+    router.push({
+        name: 'alterUser',
+        params: { id: id }
+    })
+}
 </script>
 
 <style lang="scss" scoped>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ElMessage } from "element-plus"
 import { useMusicStore } from './music'
-import { Logger } from 'sass'
+import { ref } from 'vue'
 
 export const useUserStore = defineStore('userInfo', () => {
     const musicStore = useMusicStore()
@@ -25,8 +25,6 @@ export const useUserStore = defineStore('userInfo', () => {
         }
     ]
 
-    console.log('全部用户', userInfo);
-
     if (localStorage.getItem('userInfo')) {
         let JsonUserInfo = JSON.parse(localStorage.getItem('userInfo'))
 
@@ -38,6 +36,7 @@ export const useUserStore = defineStore('userInfo', () => {
             userInfo.push(JsonUserInfo[i])
         }
     }
+    console.log('全部用户', userInfo);
 
     for (let i = 0; i < userInfo.length; i++) {
         let newCreatePlaylist = []
@@ -62,6 +61,7 @@ export const useUserStore = defineStore('userInfo', () => {
 
     const addUser = (user) => {
         userInfo.push(user)
+        localStorage.setItem('userInfo', JSON.stringify(userInfo))
     }
 
     const updateUserInfo = (user) => {
@@ -177,6 +177,8 @@ export const useUserStore = defineStore('userInfo', () => {
         localStorage.setItem('userInfo', JSON.stringify(userInfo))
     }
 
+    const userInfoUpdateSignal = ref(false)
+
     return {
         userInfo,
         getUser,
@@ -188,5 +190,6 @@ export const useUserStore = defineStore('userInfo', () => {
         removeCollectPlayList,
         addFollow,
         removeFollow,
+        userInfoUpdateSignal
     }
 })

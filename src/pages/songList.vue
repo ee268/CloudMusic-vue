@@ -84,7 +84,7 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column prop="name" label="歌曲标题" width="340">
+                        <el-table-column prop="name" label="歌曲标题" width="450">
                             <template #default="scope">
                                 <div class="song-title" @click="toSingleSongPage(scope.row)">{{ scope.row.name }}</div>
                             </template>
@@ -115,9 +115,11 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column prop="artist" label="歌手" widh="100" />
-
-                        <el-table-column prop="belong_album" label="专辑" />
+                        <el-table-column prop="artist" label="歌手">
+                            <template #default="scope">
+                                <span class="artist" @click="toUserPage(data[scope.row.index].creator_id)">{{ data[scope.row.index].creator_name }}</span>
+                            </template>    
+                        </el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -147,6 +149,8 @@ menuStore.menuRef.updateActiveIndex("3")
 const router = useRouter()
 const musicStore = useMusicStore()
 const userStore = useUserStore()
+
+// musicStore.randPlayList()
 
 const songList = ref(musicStore.getPlayListId(router.currentRoute.value.params.id.substring(1)))
 const songListTag = ref(songList.value.label)
@@ -531,15 +535,6 @@ const closeCollectDialog = () => {
 }
 
 const toUserPage = (id) => {
-    
-    if (isOwnPlayList.value) {
-        router.push({
-            name: 'my',
-            params: { id: 'id=' + id }
-        })
-        return
-    }
-
     router.push({
         name: 'alterUser',
         params: { id: id }
@@ -764,6 +759,14 @@ const toUserPage = (id) => {
 
                     &:hover {
                         color: #C20C0C;
+                    }
+                }
+
+                .artist {
+                    cursor: pointer;
+
+                    &:hover {
+                        text-decoration-line: underline;
                     }
                 }
             }

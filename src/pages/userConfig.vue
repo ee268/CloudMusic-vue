@@ -12,9 +12,9 @@
                 </template>
                 <div class="config">
                     <div class="avator">
-                        <el-image src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                        <el-image :src="avatar == '' ? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png' : avatar "
                             fit="cover" />
-                        <el-button>更换头像</el-button>
+                        <el-button @click="openAvatarDialog = true">更换头像</el-button>
                     </div>
 
                     <div class="name">
@@ -31,8 +31,8 @@
                     <div class="gender">
                         <div>性别：</div>
                         <el-radio-group v-model="gender">
-                            <el-radio value="1">男</el-radio>
-                            <el-radio value="2">女</el-radio>
+                            <el-radio value="男">男</el-radio>
+                            <el-radio value="女">女</el-radio>
                         </el-radio-group>
                     </div>
 
@@ -61,7 +61,8 @@
 
                         <div>
                             <el-select v-model="area[0]" style="width: 100px" placeholder="省">
-                                <el-option v-for="(value, key, index) in provincesWithCities" :key="index" :value="key" :label="key">
+                                <el-option v-for="(value, key, index) in provincesWithCities" :key="index" :value="key"
+                                    :label="key">
                                 </el-option>
                             </el-select>
 
@@ -78,6 +79,26 @@
                 </div>
             </el-card>
         </div>
+
+        <el-dialog v-model="openAvatarDialog" title="选择头像" width="500" align-center>
+            <div class="avatar-container">
+                <div class="avatar-list">
+                    <div class="avatar-item" v-for="(item, i) in avatarList" :key="i"
+                        :style="{ background: `url(${item}) no-repeat`, backgroundSize: 'cover' }"
+                        :class="{ 'is-active': activeAvatar[i] }" @click="selectAvatar(i)">
+                    </div>
+                </div>
+            </div>
+
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="openAvatarDialog = false">取消</el-button>
+                    <el-button color="#C20C0C" type="primary" @click="saveAvatar">
+                        保存
+                    </el-button>
+                </div>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -97,6 +118,61 @@ const intro = ref('');
 const gender = ref('');
 const birthday = ref(['', '', '']);
 const area = ref(['', '']);
+const avatar = ref('');
+
+const openAvatarDialog = ref(false)
+
+const avatarList = []
+for (let i = 0; i < 12; i++) {
+    avatarList.push(`/public/avatar/avatar${i + 1}.jpg`)
+}
+
+const activeAvatar = ref(new Array(avatarList.length).fill(false))
+const activeAvatarCnt = ref(0)
+
+const selectAvatar = (index) => {
+    if (activeAvatar.value[index]) {
+        activeAvatar.value[index] = false
+        activeAvatarCnt.value--
+
+        return
+    }
+
+    if (activeAvatarCnt.value >= 1) {
+        ElMessage({
+            showClose: true,
+            message: '只能选择一个头像',
+            type: 'warning',
+            plain: true,
+            duration: 1500
+        })
+
+        return
+    }
+
+    activeAvatar.value[index] = true
+    activeAvatarCnt.value++
+}
+
+const saveAvatar = () => {
+    let selectAvatarIndex = activeAvatar.value.findIndex(item => item)
+
+    if (selectAvatarIndex === -1) {
+        ElMessage({
+            showClose: true,
+            message: '请选择头像',
+            type: 'warning',
+            plain: true,
+            duration: 1500
+        })
+
+        return
+    }
+
+    avatar.value = avatarList[selectAvatarIndex]
+
+    openAvatarDialog.value = false
+}
 
 onMounted(() => {
     menuStore.menuRef.updateActiveIndex("3")
@@ -107,29 +183,32 @@ onMounted(() => {
     gender.value = user.gender
     birthday.value = user.birthday
     area.value = user.area
+    avatar.value = user.avatar
 })
 
 const saveConfig = () => {
     let user = userStore.getUserId(localStorage.getItem('acc_id'))
-
-    console.log(user);
 
     user.name = name.value
     user.introduce = intro.value
     user.gender = gender.value
     user.birthday = birthday.value
     user.area = area.value
+    user.avatar = avatar.value
+    console.log(gender.value);
 
-    userStore.updateUserInfo(user)
+    // userStore.updateUserInfo(user)
 
     localStorage.setItem('userInfo', JSON.stringify(userStore.userInfo))
+
+    userStore.userInfoUpdateSignal = true
 
     ElMessage({
         showClose: true,
         message: '保存成功',
         type: 'success',
         plain: true,
-        duration: '1000'
+        duration: 1000
     })
 }
 
@@ -268,7 +347,7 @@ const isExistCitys = () => {
     for (let key in provincesWithCities) {
         if (key == area.value[0]) {
             citys.value = provincesWithCities[key]
-            return            
+            return
         }
     }
 }
@@ -422,6 +501,39 @@ const isExistCitys = () => {
 
     &.is-focused {
         box-shadow: 0px 0px 3px #C20C0C;
+    }
+}
+</style>
+
+<style lang="scss" scoped>
+.avatar-container {
+    display: flex;
+    height: 400px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    .avatar-list {
+        width: 100%;
+        height: auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+
+        .avatar-item {
+            aspect-ratio: 1 / 1;
+            border-radius: 5%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                border-color: #C20C0C;
+            }
+
+            &.is-active {
+                border-color: #C20C0C;
+            }
+        }
     }
 }
 </style>

@@ -3,12 +3,13 @@
         <el-card>
             <template #header>
                 <div class="card-header">
-                    <div class="card-header-title">热门新碟</div>
+                    <div class="card-header-title">热门新曲</div>
                 </div>
             </template>
             <div class="card-album">
-                <div v-for="i in 10" :key="i">
-                    <div class="album-cover">
+                <div v-for="(song, i) in displayHotSongs" :key="i">
+                    <div class="album-cover"
+                        :style="{ background: `url(${song.audio.cover})`, backgroundSize: 'cover' }">
                         <div class="play-info">
                             <div class="play-button">
                                 <el-button>
@@ -20,10 +21,10 @@
                         </div>
                     </div>
                     <div class="albumTitle">
-                        标题标题标题
+                        {{ song.audio.name }}
                     </div>
                     <div class="albumAuthor">
-                        作者作者
+                        {{ song.creator_name }}
                     </div>
                 </div>
             </div>
@@ -32,21 +33,22 @@
         <el-card>
             <template #header>
                 <div class="card-header">
-                    <div class="card-header-title">热门新碟</div>
+                    <div class="card-header-title">全部新曲</div>
                     <div class="hotMenuContainer">
                         <el-menu class="hotMenu" mode="horizontal" :ellipsis="false">
-                            <el-menu-item index="1">全部</el-menu-item>
-                            <el-menu-item index="2">华语</el-menu-item>
-                            <el-menu-item index="3">欧美</el-menu-item>
-                            <el-menu-item index="4">韩国</el-menu-item>
-                            <el-menu-item index="5">日本</el-menu-item>
+                            <el-menu-item index="1" @click="classifySongs('全部')">全部</el-menu-item>
+                            <el-menu-item index="2" @click="classifySongs('华语')">华语</el-menu-item>
+                            <el-menu-item index="3" @click="classifySongs('欧美')">欧美</el-menu-item>
+                            <el-menu-item index="4" @click="classifySongs('韩国')">韩国</el-menu-item>
+                            <el-menu-item index="5" @click="classifySongs('日本')">日本</el-menu-item>
                         </el-menu>
                     </div>
                 </div>
             </template>
             <div class="card-album">
-                <div v-for="i in 30" :key="i">
-                    <div class="album-cover">
+                <div v-for="(song, i) in displayAllSongs" :key="i">
+                    <div class="album-cover"
+                        :style="{ background: `url(${song.audio.cover})`, backgroundSize: 'cover' }">
                         <div class="play-info">
                             <div class="play-button">
                                 <el-button>
@@ -58,22 +60,107 @@
                         </div>
                     </div>
                     <div class="albumTitle">
-                        标题标题标题
+                        {{ song.audio.name }}
                     </div>
                     <div class="albumAuthor">
-                        作者作者
+                        {{ song.creator_name }}
                     </div>
                 </div>
             </div>
             <div class="card-pagination">
-                <el-pagination background layout="prev, pager, next" :total="1000" />
+                <el-pagination background layout="prev, pager, next" :hide-on-single-page="true" :page-size="35"
+                    :total="totalPage" :current-page="curPage" @current-change="changePage" />
             </div>
         </el-card>
     </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useMusicStore } from '../../stores/music'
+import { useUserStore } from '../../stores/user'
 
+const router = useRouter()
+
+const musicStore = useMusicStore()
+const userStore = useUserStore()
+
+// const allAudioInfo = ref(musicStore.audioInfo)
+const displayHotSongs = ref([])
+const displayAllSongs = ref([])
+let startIndex = 0
+
+const totalPage = ref(musicStore.audioInfo.length)
+const curPage = ref(1)
+
+const initDisplay = () => {
+    for (let i = 0; i < 10; i++) {
+        let k = Math.floor(Math.random() * musicStore.audioInfo.length)
+        displayHotSongs.value.push(musicStore.audioInfo[k])
+    }
+
+    for (let i = 0; i < musicStore.audioInfo.length; i++) {
+        displayAllSongs.value.push(musicStore.audioInfo[i])
+
+        if (displayAllSongs.value.length >= 35) {
+            break
+        }
+    }
+}
+
+initDisplay()
+
+const changePage = (page) => {
+    curPage.value = page
+    displayAllSongs.value = []
+    startIndex = (page - 1) * 35
+
+    for (let i = startIndex; i < musicStore.audioInfo.length; i++) {
+        displayAllSongs.value.push(musicStore.audioInfo[i])
+        if (displayAllSongs.value.length >= 35) {
+
+            break
+        }
+    }
+}
+
+const classifySongs = (style) => {
+    curPage.value = 1
+    displayAllSongs.value = []
+
+    if (style === '全部') {
+        for (let i = startIndex; i < musicStore.audioInfo.length; i++) {
+            displayAllSongs.value.push(musicStore.audioInfo[i])
+            if (displayAllSongs.value.length >= 35) {
+
+                break
+            }
+        }
+
+        totalPage.value = musicStore.audioInfo.length
+
+        return
+    }
+
+    let total = 0
+
+    for (let i = 0; i < musicStore.audioInfo.length; i++) {
+        let artistNation = userStore.getUserId(musicStore.audioInfo[i].creator_id)
+        // console.log(artistNation);
+        
+        if (artistNation.nation == style) {
+            if (displayAllSongs.value.length < 35) {
+                displayAllSongs.value.push(musicStore.audioInfo[i])
+            }
+            total++
+        }
+    }
+
+    // console.log(total);
+
+    totalPage.value = total
+}
 </script>
 
 <style lang="scss" scoped>

@@ -7,25 +7,72 @@
                 </div>
             </template>
             <div class="card-artist">
-                <div v-for="i in 50" :key="i">
-                    <div class="artist-cover"></div>
-                    <div class="artist-name">
-                        <div>标题标</div>
-                        <el-icon color="#C20C0C">
-                            <UserFilled />
-                        </el-icon>
+                <div v-for="(user, i) in displaySignedUser" :key="i">
+                    <div class="artist-cover">
+                        <div class="artist-cover cover"
+                            :style="{ background: `url(${user.avatar})`, backgroundSize: 'cover' }"
+                            @click="toUserPage(user.acc_id)">
+                        </div>
+                    </div>
+                    <div class="artist-name" @click="toUserPage(user.acc_id)">
+                        <div>{{ user.name }}</div>
                     </div>
                 </div>
             </div>
             <div class="card-pagination">
-                <el-pagination background layout="prev, pager, next" :total="1000" />
+                <el-pagination background layout="prev, pager, next" :hide-on-single-page="true" :page-size="50"
+                    :total="userStore.userInfo.length" @current-change="changePage" />
             </div>
         </el-card>
     </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '../../../stores/user'
 
+const userStore = useUserStore()
+
+const router = useRouter()
+
+const seperateUser = ref([])
+const displaySignedUser = ref([])
+
+let startIndex = 0
+
+const initDisplay = () => {
+    for (let i = 0; i < userStore.userInfo.length; i++) {
+        displaySignedUser.value.push(userStore.userInfo[i])
+
+        if (displaySignedUser.value.length >= 50) {
+
+            break
+        }
+    }
+}
+
+initDisplay()
+
+const changePage = (page) => {
+    displaySignedUser.value = []
+    startIndex = (page - 1) * 50
+
+    for (let i = startIndex; i < userStore.userInfo.length; i++) {
+        displaySignedUser.value.push(userStore.userInfo[i])
+        if (displaySignedUser.value.length >= 50) {
+
+            break
+        }
+    }
+}
+
+const toUserPage = (id) => {
+    router.push({
+        name: 'alterUser',
+        params: { id: id }
+    })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -70,30 +117,43 @@
             .artist-cover {
                 aspect-ratio: 1 / 1;
                 width: 100%;
-                background: green;
-                background: url('/public/img/Cover.jpg');
+                // background: green;
+                // background: url('/public/img/Cover.jpg');
                 background-size: cover;
-                border-radius: 5%;
+                border-radius: 50%;
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 transform: scale(1);
                 cursor: pointer;
+                overflow: hidden;
                 transition: all 0.3s ease;
 
+                .cover {
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        transform: scale(1.2);
+                    }
+                }
+
                 &:hover {
-                    transform: scale(1.1);
+                    border-color: #C20C0C;
                 }
             }
         }
 
         .artist-name {
+            width: inherit;
             padding-top: 5px;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
             gap: 5px;
             transition: all 0.3s;
 
             div {
+                height: max-content;
+                width: max-content;
                 text-wrap: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;

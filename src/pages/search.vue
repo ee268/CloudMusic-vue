@@ -63,8 +63,8 @@
                         <div class="play-time">
                             {{ single_music_playTime[i] }}
                         </div>
-                        <div class="artist">
-                            {{ music.audio.artist }}
+                        <div class="artist" @click="toUserPage(music.creator_id)">
+                            {{ music.creator_name }}
                         </div>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                                 </el-icon>
                             </el-button>
                         </div>
-                        <div class="artist">
+                        <div class="artist" @click="toUserPage(playList.creator_id)">
                             {{ userStore.getUserId(playList.creator_id).name }}
                         </div>
                     </div>
@@ -102,7 +102,7 @@
 
                 <div v-show="activeMenu[2]" class="result-content user">
                     <div class="result-item" :class="{ 'bg': i % 2 == 0 }" v-for="(user, i) in user_result" :key="i">
-                        <div class="song-name" style="justify-content: center;" @click="toUserPage(i)">
+                        <div class="song-name" style="justify-content: center;" @click="toUserPage(user.acc_id)">
                             {{ user.name }}
                         </div>
                     </div>
@@ -349,8 +349,8 @@ const play_playList = (index) => {
     musicStore.isPlaying = true
 }
 
-const toUserPage = (index) => {
-    router.push({ name: 'alterUser', params: { id: user_result.value[index].acc_id } })
+const toUserPage = (id) => {
+    router.push({ name: 'alterUser', params: { id: id } })
 }
 
 const setCollectAudio = ref()
@@ -538,6 +538,11 @@ const closeCollectDialog = () => {
                     text-overflow: ellipsis;
                     overflow: hidden;
                     font-size: 14px;
+                    cursor: pointer;
+
+                    &:hover {
+                        text-decoration-line: underline;
+                    }
                 }
 
                 &:hover {

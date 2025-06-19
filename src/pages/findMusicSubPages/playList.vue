@@ -77,8 +77,8 @@
                 </div>
             </div>
             <div class="card-pagination">
-                <el-pagination background layout="prev, pager, next" :hide-on-single-page="true"
-                    :total="Math.floor(curLabelPlayList.length / 35)" />
+                <el-pagination background layout="prev, pager, next" :hide-on-single-page="true" :page-size="35"
+                    :total="totalPage" :current-page="curPage" @current-change="changePage" />
             </div>
         </el-card>
     </div>
@@ -101,6 +101,13 @@ const all = '全部'
 const curLabel = ref(all)
 
 const allPlayList = musicStore.playList.filter(item => !item.belong_user && (item.id != 'privacyRadar'))
+
+let alterPlayList = allPlayList
+
+const totalPage = ref(allPlayList.length)
+const curPage = ref(1)
+
+let startIndex = 0
 
 const curLabelPlayList = ref(allPlayList)
 const curLabelPlayListCover = ref([])
@@ -131,23 +138,43 @@ initCover()
 
 watch(curLabel, (newLabel) => {
     if (curLabel.value == all) {
-        curLabelPlayList.value = allPlayList
-        initCover()
+        totalPage.value = allPlayList.length
+        alterPlayList = allPlayList
+        changePage(1)
         return
     }
 
-    let newList = []
+    alterPlayList = []
 
     for (let i = 0; i < allPlayList.length; i++) {
         if (allPlayList[i].label.includes(newLabel)) {
-            newList.push(allPlayList[i])
+            alterPlayList.push(allPlayList[i])
         }
     }
-    console.log(123);
 
-    curLabelPlayList.value = newList
-    initCover()
+    totalPage.value = alterPlayList.length
+    changePage(1)
 })
+
+if (router.currentRoute.value.query.label) {
+    curLabel.value = router.currentRoute.value.query.label
+}
+
+const changePage = (page) => {
+    curLabelPlayList.value = []
+    startIndex = (page - 1) * 35
+    curPage.value = page
+
+    for (let i = startIndex; i < alterPlayList.length; i++) {
+        curLabelPlayList.value.push(alterPlayList[i])
+        if (curLabelPlayList.value.length >= 35) {
+
+            break
+        }
+    }
+    initCover()
+}
+changePage(1)
 
 const selectTag = (tag) => {
     curLabel.value = tag

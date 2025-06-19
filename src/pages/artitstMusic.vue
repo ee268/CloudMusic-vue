@@ -6,13 +6,17 @@
         <div class="myMusic">
             <el-card>
                 <div class="userInfo">
-                    <div class="user-avatar" @click="showPlayList"></div>
+                    <div class="user-avatar" @click="showPlayList" :style="{
+                        background: `url(${userInfo.avatar == '' ? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png' : userInfo.avatar})`,
+                        backgroundSize: 'cover'
+                    }">
+                    </div>
 
                     <div class="user-data">
                         <div class="user-name">
                             {{ userInfo.name }}
                             <el-button v-show="!isOwner" type="primary" color="#C20C0C" @click="addFollow">{{ isFollow
-                                }}</el-button>
+                            }}</el-button>
                         </div>
                         <div class="user-cnt">
                             <div @click="showFollow">

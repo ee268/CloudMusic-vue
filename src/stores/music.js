@@ -4,6 +4,7 @@ import 'aplayer/dist/APlayer.min.css'
 import APlayer from 'aplayer'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from './user'
+import { id } from 'element-plus/es/locales.mjs'
 
 export const useMusicStore = defineStore('music', () => {
     const userStore = useUserStore()
@@ -128,8 +129,155 @@ export const useMusicStore = defineStore('music', () => {
     }
     console.log('全部歌单', playList.value);
 
+    // localStorage.setItem('backupPlayList', JSON.stringify(playList.value))
+
+    function randPlayList() {
+        const chinesePlaylistNames = [
+            "星空下的旋律",
+            "时光漫步",
+            "心灵共鸣",
+            "梦境边缘",
+            "晨曦微露",
+            "夜色温柔",
+            "城市脉搏",
+            "流光溢彩",
+            "心灵之旅",
+            "追梦人",
+            "月光奏鸣曲",
+            "风的低语",
+            "云端漫步",
+            "无尽之海",
+            "繁星点点",
+            "心灵港湾",
+            "时光隧道",
+            "梦幻泡影",
+            "晨露未晞",
+            "星河长明",
+            "心灵捕手",
+            "夜未央",
+            "晨光熹微",
+            "心灵捕梦网",
+            "时光剪影",
+            "梦的彼岸",
+            "风之谷",
+            "心灵交响曲",
+            "晨曦初上",
+            "星空物语",
+            "心灵驿站",
+            "时光倒影",
+            "梦回故里",
+            "风起云涌",
+            "心灵捕手",
+            "晨光微曦",
+            "星空下的约定",
+            "心灵捕梦网",
+            "时光的河",
+            "梦的轨迹",
+            "风之翼",
+            "心灵捕手",
+            "晨曦中的希望",
+            "星空下的秘密",
+            "心灵捕梦人",
+            "时光的旋律",
+            "梦的延续",
+            "风之舞",
+            "心灵捕梦网",
+            "晨曦中的光辉",
+            "星空下的誓言",
+            "心灵捕梦人",
+            "时光的碎片",
+            "梦的旅程",
+            "风之诗",
+            "心灵捕梦网",
+            "晨曦中的温暖",
+            "星空下的思念",
+            "心灵捕梦人",
+            "时光的印记",
+            "梦的彼岸",
+            "风之歌",
+            "心灵捕梦网",
+            "晨曦中的宁静",
+            "星空下的约定",
+            "心灵捕梦人",
+            "时光的倒影",
+            "梦的延续",
+            "风之语",
+            "心灵捕梦网",
+            "晨曦中的希望",
+            "星空下的秘密",
+            "心灵捕梦人",
+            "时光的旋律",
+            "梦的旅程",
+            "风之梦",
+            "心灵捕梦网",
+            "晨曦中的光辉",
+            "星空下的思念",
+            "心灵捕梦人",
+            "时光的碎片",
+            "梦的彼岸",
+            "风之歌",
+            "心灵捕梦网",
+            "晨曦中的温暖",
+            "星空下的约定",
+            "心灵捕梦人",
+            "时光的倒影",
+            "梦的延续",
+            "风之语",
+            "心灵捕梦网",
+            "晨曦中的宁静",
+            "星空下的秘密",
+            "心灵捕梦人",
+            "时光的旋律",
+            "梦的旅程",
+            "风之梦",
+            "心灵捕梦网"
+        ];
+        for (let i = 0; i < chinesePlaylistNames.length; i++) {
+            let randAudioCnt = Math.floor(Math.random() * 20)
+            let randAudios = []
+
+            let randUser = Math.floor(Math.random() * userStore.userInfo.length)
+
+            let playList_id = Math.random().toString().substring(5, 12)
+
+            while (getPlayListId(playList_id)) {
+                playList_id = Math.random().toString().substring(5, 12)
+            }
+
+            let randLabelCnt = Math.floor(Math.random() * 5)
+            let randLabels = []
+
+            let randName = Math.floor(Math.random() * chinesePlaylistNames.length)
+
+            for (let i = 0; i < randAudioCnt; i++) {
+                let k = Math.floor(Math.random() * audioInfo.length)
+                randAudios.push(audioInfo[k])
+            }
+
+            for (let j = 0; j < randLabelCnt; j++) {
+                let k = Math.floor(Math.random() * selectLabel[randLabelCnt].label.length)
+                randLabels.push(selectLabel[randLabelCnt].label[k])
+            }
+
+            let newPlayList = {
+                audios: randAudios,
+                create_time: '2025-6-19',
+                creator_id: userStore.userInfo[randUser].acc_id,
+                id: playList_id,
+                intro: 'test',
+                label: randLabels,
+                name: chinesePlaylistNames[randName]
+            }
+
+            // addAudio(newPlayList)
+            addPlayList(newPlayList)
+        }
+    }
+
     function addAudio(name, url) {
         let cover_random = Math.floor(Math.random() * (40 - 1 + 1)) + 1
+
+        let userName = userStore.getUserId(audioInfo[i].creator_id).name
 
         for (let i = 0; i < audioList.value.length; i++) {
             if (audioList.value[i].url === url) {
@@ -154,6 +302,7 @@ export const useMusicStore = defineStore('music', () => {
         audioInfo.push({
             id: Math.random().toString().substring(4, 12),
             creator_id: localStorage.getItem('acc_id'),
+            creator_name: userName,
             audio: audioList.value[audioList.value.length - 1],
         })
 
@@ -164,6 +313,16 @@ export const useMusicStore = defineStore('music', () => {
     }
 
     console.log('全部歌曲', audioInfo);
+
+    // function randCreator_id() {
+    //     for (let i = 0; i < playList.value.length; i++) {
+    //         for (let j = 0; j < playList.value[i].audios.length; j++) {
+    //             playList.value[i].audios[j] = getAudioInfo(playList.value[i].audios[j].id)
+    //         }
+    //     }
+
+    //     localStorage.setItem('playList', JSON.stringify(playList.value))
+    // }
 
     function getPlayListId(id) {
         return playList.value.find(item => item.id === id)

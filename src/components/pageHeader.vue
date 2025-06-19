@@ -35,7 +35,7 @@
                 </el-dropdown>
 
                 <el-dropdown v-show="isLogin" popper-class="userDropDown">
-                    <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+                    <el-avatar :src="userAvatar" />
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item @click="updateUserInfo">
@@ -100,8 +100,9 @@
 
 <script setup>
 import pageHeaderMenu from './pageHeaderMenu.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useCounterStore } from '../stores/login.js'
+import { useUserStore } from '../stores/user.js'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -113,7 +114,18 @@ const signText = ref('注册')
 
 const searchContent = ref('')
 
-const counter = useCounterStore()
+const loginStore = useCounterStore()
+const userStore = useUserStore()
+
+const userInfo = ref(userStore.getUserId(localStorage.getItem('acc_id')))
+
+const userAvatar = ref('')
+if (userInfo.value.avatar == '') {
+    userAvatar.value = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
+}
+else {
+    userAvatar.value = userInfo.value.avatar
+}
 
 const router = useRouter()
 
@@ -125,11 +137,25 @@ const {
     login,
     logout,
     sign,
-    confirmPassword
-} = storeToRefs(counter)
+    confirmPassword,
+} = storeToRefs(loginStore)
+
+const { userInfoUpdateSignal } = storeToRefs(userStore)
+
+watch(userInfoUpdateSignal, () => {
+    // console.log(123);
+    userInfoUpdateSignal.value = false
+    userInfo.value = userStore.getUserId(localStorage.getItem('acc_id'))
+    if (userInfo.value.avatar == '') {
+        userAvatar.value = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
+    }
+    else {
+        userAvatar.value = userInfo.value.avatar
+    }
+})
 
 const updateUserInfo = () => {
-    router.push({ name: 'userConfig', params: { id: counter.acc_id } })
+    router.push({ name: 'userConfig', params: { id: loginStore.acc_id } })
 }
 
 const handleClose = () => {
@@ -156,10 +182,8 @@ const signClick = () => {
 }
 
 const loginClick = () => {
-    console.log(isSign.value);
-
     if (isSign.value) {
-        if (counter.sign()) {
+        if (loginStore.sign()) {
             loginText.value = '登录'
             signText.value = '注册'
 
@@ -167,7 +191,14 @@ const loginClick = () => {
         }
     }
     else {
-        if (counter.login()) {
+        if (loginStore.login()) {
+            userInfo.value = userStore.getUserId(localStorage.getItem('acc_id'))
+            if (userInfo.value.avatar == '') {
+                userAvatar.value = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
+            }
+            else {
+                userAvatar.value = userInfo.value.avatar
+            }
             router.push({ name: 'find' })
         }
     }
@@ -175,7 +206,7 @@ const loginClick = () => {
 
 const logoutClick = () => {
     router.push({ name: 'find' })
-    counter.logout()
+    loginStore.logout()
 }
 
 const enterSearch = () => {

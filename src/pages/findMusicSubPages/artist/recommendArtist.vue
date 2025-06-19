@@ -17,13 +17,14 @@
                 </div>
             </template>
             <div class="card-artist">
-                <div v-for="i in 10" :key="i">
-                    <div class="artist-cover"></div>
-                    <div class="artist-name">
-                        <div>标题标</div>
-                        <el-icon color="#C20C0C">
-                            <UserFilled />
-                        </el-icon>
+                <div v-for="(user, i) in displayRecommendUser" :key="i">
+                    <div class="artist-cover" @click="toUserPage(user.acc_id)">
+                        <div class="artist-cover cover"
+                            :style="{ background: `url(${user.avatar})`, backgroundSize: 'cover' }">
+                        </div>
+                    </div>
+                    <div class="artist-name" @click="toUserPage(user.acc_id)">
+                        <div>{{ user.name }}</div>
                     </div>
                 </div>
             </div>
@@ -35,22 +36,20 @@
                 </div>
             </template>
             <div class="card-artist">
-                <div v-for="i in 10" :key="i">
-                    <div class="artist-cover"></div>
-                    <div class="artist-name">
-                        <div>标题标</div>
-                        <el-icon color="#C20C0C">
-                            <UserFilled />
-                        </el-icon>
+                <div v-for="(user, i) in displaySignedUser" :key="i">
+                    <div class="artist-cover" @click="toUserPage(user.acc_id)">
+                        <div class="artist-cover cover"
+                            :style="{ background: `url(${user.avatar})`, backgroundSize: 'cover' }">
+                        </div>
+                    </div>
+                    <div class="artist-name" @click="toUserPage(user.acc_id)">
+                        <div>{{ user.name }}</div>
                     </div>
                 </div>
             </div>
             <div class="card-artist-name">
-                <div class="artist-name" v-for="i in 52" :key="i">
-                    <div>标题标</div>
-                    <el-icon color="#C20C0C">
-                        <UserFilled />
-                    </el-icon>
+                <div class="artist-name" v-for="(user, i) in displayUser" :key="i">
+                    <div @click="toUserPage(user.acc_id)">{{ user.name }}</div>
                 </div>
             </div>
         </el-card>
@@ -58,8 +57,12 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMenuStore } from '@/stores/menu'
+import { useUserStore } from '../../../stores/user'
+
+const userStore = useUserStore()
 
 const router = useRouter()
 
@@ -68,6 +71,34 @@ const Menu = useMenuStore()
 const toSignedArtist = (event) => {
     router.push({ name: 'signedArtist' })
     Menu.sideMenuRef.updateActiveIndex('1-2')
+}
+
+const displayRecommendUser = ref([])
+const displaySignedUser = ref([])
+const displayUser = ref([])
+
+const initDisplay = () => {
+    for (let i = 0; i < 10; i++) {
+        let k = Math.floor(Math.random() * userStore.userInfo.length)
+        displayRecommendUser.value.push(userStore.userInfo[k])
+
+        k = Math.floor(Math.random() * userStore.userInfo.length)
+        displaySignedUser.value.push(userStore.userInfo[k])
+    }
+
+    for (let i = 0; i < 52; i++) {
+        let k = Math.floor(Math.random() * userStore.userInfo.length)
+        displayUser.value.push(userStore.userInfo[k])
+    }
+}
+
+initDisplay()
+
+const toUserPage = (id) => {
+    router.push({
+        name: 'alterUser',
+        params: { id: id }
+    })
 }
 
 </script>
@@ -144,30 +175,43 @@ const toSignedArtist = (event) => {
             .artist-cover {
                 aspect-ratio: 1 / 1;
                 width: 100%;
-                background: green;
-                background: url('/public/img/Cover.jpg');
+                // background: green;
+                // background: url('/public/img/Cover.jpg');
                 background-size: cover;
-                border-radius: 5%;
+                border-radius: 50%;
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 transform: scale(1);
                 cursor: pointer;
+                overflow: hidden;
                 transition: all 0.3s ease;
 
+                .cover {
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        transform: scale(1.2);
+                    }
+                }
+
                 &:hover {
-                    transform: scale(1.1);
+                    border-color: #C20C0C;
                 }
             }
         }
 
         .artist-name {
+            width: inherit;
             padding-top: 5px;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
             gap: 5px;
             transition: all 0.3s;
 
             div {
+                height: max-content;
+                width: max-content;
                 text-wrap: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;

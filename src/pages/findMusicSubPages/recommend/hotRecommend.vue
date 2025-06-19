@@ -11,11 +11,11 @@
                     <div class="card-header-title">热门推荐</div>
                     <div class="hotMenuContainer">
                         <el-menu class="hotMenu" mode="horizontal" :ellipsis="false">
-                            <el-menu-item index="1">华语</el-menu-item>
-                            <el-menu-item index="2">流行</el-menu-item>
-                            <el-menu-item index="3">摇滚</el-menu-item>
-                            <el-menu-item index="4">民谣</el-menu-item>
-                            <el-menu-item index="5">电子</el-menu-item>
+                            <el-menu-item index="1" @click="toThisClassify('华语')">华语</el-menu-item>
+                            <el-menu-item index="2" @click="toThisClassify('流行')">流行</el-menu-item>
+                            <el-menu-item index="3" @click="toThisClassify('摇滚')">摇滚</el-menu-item>
+                            <el-menu-item index="4" @click="toThisClassify('民谣')">民谣</el-menu-item>
+                            <el-menu-item index="5" @click="toThisClassify('电子')">电子</el-menu-item>
                         </el-menu>
                     </div>
                     <div class="more">
@@ -109,6 +109,10 @@ for (let i = 0; i < 8; i++) {
 
 const toPlayListPage = (index) => {
     router.push({ name: 'list', params: { id: '=' + displayPlayList.value[index].id } })
+}
+
+const toThisClassify = (label) => {
+    router.push({ name: 'playList', query: { label: label } })
 }
 
 </script>

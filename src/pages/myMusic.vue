@@ -6,7 +6,12 @@
         <div class="myMusic">
             <el-card>
                 <div class="userInfo">
-                    <div class="user-avatar" @click="showPlayList"></div>
+                    <div class="user-avatar" @click="showPlayList" 
+                        :style="{
+                            background: `url(${userInfo.avatar == '' ? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png' : userInfo.avatar})`,
+                            backgroundSize: 'cover'
+                        }">
+                    </div>
 
                     <div class="user-data">
                         <div class="user-name">
@@ -177,7 +182,7 @@
 
                     <template #footer>
                         <div style="text-align: center; border-top: 1px solid #999; padding: 16px 0 0 0;">
-                            <el-button type="primary" @click="openSelectLabel = false">
+                            <el-button color="#C20C0C" type="primary" @click="openSelectLabel = false">
                                 保存并关闭
                             </el-button>
                         </div>
@@ -208,16 +213,11 @@
                             :autosize="{ minRows: 8, maxRows: 8 }" />
                     </div>
                 </div>
-                <div class="playlist-cover">
-                    <div class="edit-cover">
-                        <div>编辑封面</div>
-                    </div>
-                </div>
             </div>
             <template #footer>
                 <div>
                     <el-button @click="createPlayList('close')">取消</el-button>
-                    <el-button type="primary" @click="createPlayList('correct')">
+                    <el-button color="#C20C0C" type="primary" @click="createPlayList('correct')">
                         确认
                     </el-button>
                 </div>

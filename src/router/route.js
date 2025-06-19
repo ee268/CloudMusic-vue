@@ -33,9 +33,10 @@ const router = createRouter({
                     name: 'playList',
                     meta: {
                         subMenu: true,
-                        index: '1'
+                        index: '1',
                     },
-                    component: () => import('../pages/findMusicSubPages/playList.vue')
+                    component: () => import('../pages/findMusicSubPages/playList.vue'),
+                    props: true,
                 },
                 {
                     path: 'artist',
